@@ -23,9 +23,9 @@ export default function StoryDetail(props: { spaceId: number; storyId: number })
         markdown={`\`\`\`json\n${JSON.stringify(data.data?.story, null, 4)}`}
         actions={
           <ActionPanel>
-            {data.data?.story.slug && (
+            {(data.data?.story.slug && data.data?.story.published_at) && (
               <>
-                <Action.OpenInBrowser title="Open Draft JSON" url={storyJson("draft", data.data.story.slug)} />
+                {/* <Action.OpenInBrowser title="Open Draft JSON" url={storyJson("draft", data.data.story.slug)} /> */}
                 <Action.OpenInBrowser title="Open Published JSON" url={storyJson("published", data.data.story.slug)} />
               </>
             )}
