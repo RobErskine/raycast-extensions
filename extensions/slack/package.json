@@ -74,6 +74,13 @@
       "subtitle": "Slack",
       "description": "Let Slack decide automatically how to show your presence status or force it to be shown as offline.",
       "mode": "view"
+    },
+    {
+      "name": "set-status",
+      "title": "Set Status",
+      "subtitle": "Slack",
+      "description": "Set or clear your Slack status.",
+      "mode": "view"
     }
   ],
   "preferences": [
