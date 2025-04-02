@@ -74,6 +74,13 @@
       "subtitle": "Slack",
       "description": "Let Slack decide automatically how to show your presence status or force it to be shown as offline.",
       "mode": "view"
+    },
+    {
+      "name": "saved-messages",
+      "title": "Saved Messages",
+      "subtitle": "Slack",
+      "description": "View Saved for Later messages.",
+      "mode": "view"
     }
   ],
   "preferences": [
