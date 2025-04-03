@@ -40,6 +40,20 @@ export interface UnreadChannelInfo {
   messageHistory: Message[];
 }
 
+export type SlackStatus = {
+  emojiCode: string;
+  title: string;
+  expiration?: number; // timestamp in milliseconds
+};
+
+export type SlackStatusPreset = {
+  id?: string;
+  emojiCode: string;
+  title: string;
+  defaultDuration: number; // 0 means "don't clear"
+  pauseNotifications: boolean;
+};
+
 const sortNames = (a: string, b: string) => {
   if (a < b) {
     return -1;
