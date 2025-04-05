@@ -49,7 +49,7 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
       onStatusUpdate({
         text: values.text,
         emoji: values.emoji ? `:${values.emoji.replace(/:/g, "")}:` : undefined,
-        expiration: expiration || undefined
+        expiration: expiration || undefined,
       });
 
       await showToast({
@@ -81,11 +81,7 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
         title="Duration (minutes)"
         placeholder="How long? (leave empty for no expiration)"
       />
-      <Form.Checkbox
-        id="pauseNotifications"
-        label="Pause notifications"
-        title="Do Not Disturb"
-      />
+      <Form.Checkbox id="pauseNotifications" label="Pause notifications" title="Do Not Disturb" />
     </Form>
   );
 }
@@ -140,7 +136,7 @@ function SetStatus() {
         message: preset.title,
       });
     } catch (error) {
-			await showFailureToast(String(error));
+      await showFailureToast(String(error));
     } finally {
       setIsLoading(false);
     }
@@ -159,7 +155,10 @@ function SetStatus() {
           }
           actions={
             <ActionPanel>
-              <Action title="Set Custom Status" onAction={() => push(<SetStatusForm onStatusUpdate={setCurrentStatus} />)} />
+              <Action
+                title="Set Custom Status"
+                onAction={() => push(<SetStatusForm onStatusUpdate={setCurrentStatus} />)}
+              />
               {currentStatus?.text && (
                 <Action
                   title="Clear Status"
@@ -180,7 +179,7 @@ function SetStatus() {
                         title: "Status cleared",
                       });
                     } catch (error) {
-											await showFailureToast(String(error));
+                      await showFailureToast(String(error));
                     } finally {
                       setIsLoading(false);
                     }
