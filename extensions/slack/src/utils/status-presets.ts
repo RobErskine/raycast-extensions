@@ -42,7 +42,7 @@ export const DEFAULT_PRESETS: SlackStatusPreset[] = [
   },
 ];
 
-function storePresets(presets: SlackStatusPreset[]) {
+export function storePresets(presets: SlackStatusPreset[]) {
   try {
     mkdirSync(`${environment.supportPath}`, { recursive: true });
     const path = `${environment.supportPath}/presets.json`;
@@ -63,40 +63,45 @@ function readStoredPresets(): SlackStatusPreset[] | undefined {
   }
 }
 
-export function usePresets() {
+interface UsePresetsReturn {
+  customPresets: SlackStatusPreset[];
+  addPreset: (preset: SlackStatusPreset) => Promise<void>;
+  deletePreset: (presetId: string) => Promise<void>;
+  refreshPresets: () => Promise<void>;
+}
+
+export function usePresets(): UsePresetsReturn {
   const [presets, setPresets] = useState<SlackStatusPreset[]>(() => {
+    return readStoredPresets() || [];
+  });
+
+  const refreshPresets = async () => {
     const stored = readStoredPresets();
     if (stored) {
-      let isModified = false;
-      const updatedPresets = stored.map((preset) => {
-        // Add `id` if missing.
-        if (!preset.id) {
-          isModified = true;
-          preset.id = nanoid();
-        }
-
-        // Add `pauseNotifications` if missing.
-        if (preset.pauseNotifications === undefined) {
-          isModified = true;
-          preset.pauseNotifications = preset.title === "Focus Mode";
-        }
-
-        return preset;
-      });
-
-      if (isModified) {
-        storePresets(updatedPresets);
-      }
-
-      return updatedPresets;
-    } else {
-      return DEFAULT_PRESETS;
+      setPresets(stored);
     }
-  });
+  };
 
   useEffect(() => {
     storePresets(presets);
   }, [presets]);
 
-  return [presets, setPresets] as const;
+  const addPreset = async (preset: SlackStatusPreset) => {
+    const newPresets = [...presets, preset];
+    await storePresets(newPresets);
+    setPresets(newPresets);
+  };
+
+  const deletePreset = async (presetId: string) => {
+    const updatedPresets = presets.filter((p) => p.id !== presetId);
+    await storePresets(updatedPresets);
+    setPresets(updatedPresets);
+  };
+
+  return {
+    customPresets: presets,
+    addPreset,
+    deletePreset,
+    refreshPresets,
+  };
 }

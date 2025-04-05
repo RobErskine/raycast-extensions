@@ -2,7 +2,8 @@ import { Form, ActionPanel, Action, showToast, Toast, List, Icon, useNavigation 
 import { useState, useEffect } from "react";
 import { getSlackWebClient } from "./shared/client/WebClient";
 import { withSlackClient } from "./shared/withSlackClient";
-import { DEFAULT_PRESETS } from "./utils/status-presets";
+import { DEFAULT_PRESETS, usePresets } from "./utils/status-presets";
+import { nanoid } from "nanoid";
 import { SlackStatusPreset, SlackClient } from "./shared/client";
 import { getEmojiForCode } from "./utils/status-emojis";
 import { formatRelative } from "date-fns";
@@ -22,6 +23,7 @@ interface SetStatusFormProps {
 function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { pop } = useNavigation();
+  const { addPreset } = usePresets();
 
   async function handleSubmit(values: FormValues) {
     try {
@@ -71,6 +73,23 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
       actions={
         <ActionPanel>
           <Action.SubmitForm title="Set Status" onSubmit={handleSubmit} />
+          <Action.SubmitForm
+            title="Save as Preset"
+            onSubmit={async (values: FormValues) => {
+              const preset: SlackStatusPreset = {
+                id: nanoid(),
+                title: values.text || "Custom Status",
+                emojiCode: values.emoji ? `:${values.emoji.replace(/:/g, "")}:` : ":speech_balloon:",
+                defaultDuration: values.duration ? parseInt(values.duration) : 0,
+                pauseNotifications: values.pauseNotifications,
+              };
+              await addPreset(preset);
+              await showToast({
+                style: Toast.Style.Success,
+                title: "Preset saved",
+              });
+            }}
+          />
         </ActionPanel>
       }
     >
@@ -87,14 +106,19 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
 }
 
 function SetStatus() {
-  const { push } = useNavigation();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentStatus, setCurrentStatus] = useState<{ text?: string; emoji?: string; expiration?: number }>();
+  const { push } = useNavigation();
+  const { customPresets, deletePreset, refreshPresets } = usePresets();
 
   useEffect(() => {
+    async function initialize() {
+      await Promise.all([refreshPresets(), fetchCurrentStatus()]);
+    }
+
     async function fetchCurrentStatus() {
       try {
-        // First get the current user's ID
+        setIsLoading(true);
         const { id: userId } = await SlackClient.getMe();
         const client = getSlackWebClient();
         const response = await client.users.profile.get({ user: userId });
@@ -111,7 +135,8 @@ function SetStatus() {
         setIsLoading(false);
       }
     }
-    fetchCurrentStatus();
+
+    initialize();
   }, []);
 
   async function handlePresetSelect(preset: SlackStatusPreset) {
@@ -190,7 +215,40 @@ function SetStatus() {
           }
         />
       </List.Section>
-      <List.Section title="Presets">
+
+      {customPresets.length > 0 && (
+        <List.Section title="My Presets">
+          {customPresets.map((preset: SlackStatusPreset) => (
+            <List.Item
+              key={preset.id}
+              icon={getEmojiForCode(preset.emojiCode)}
+              title={preset.title}
+              subtitle={preset.defaultDuration > 0 ? `${preset.defaultDuration}m` : "No expiration"}
+              accessories={[...(preset.pauseNotifications ? [{ icon: Icon.BellDisabled }] : [])]}
+              actions={
+                <ActionPanel>
+                  <Action title="Set Status" onAction={() => handlePresetSelect(preset)} />
+                  <Action
+                    title="Delete Preset"
+                    style={Action.Style.Destructive}
+                    onAction={async () => {
+                      if (preset.id) {
+                        await deletePreset(preset.id);
+                      }
+                      await showToast({
+                        style: Toast.Style.Success,
+                        title: "Preset deleted",
+                      });
+                    }}
+                  />
+                </ActionPanel>
+              }
+            />
+          ))}
+        </List.Section>
+      )}
+
+      <List.Section title="Default Presets">
         {DEFAULT_PRESETS.map((preset) => (
           <List.Item
             key={preset.id}
