@@ -1,4 +1,4 @@
-import { Form, ActionPanel, Action, showToast, Toast, List, Icon, useNavigation, showHUD } from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Toast, List, Icon, useNavigation } from "@raycast/api";
 import { useState, useEffect } from "react";
 import { getSlackWebClient } from "./shared/client/WebClient";
 import { withSlackClient } from "./shared/withSlackClient";
@@ -12,9 +12,14 @@ interface FormValues {
   text: string;
   emoji: string;
   duration: string;
+  pauseNotifications: boolean;
 }
 
-function SetStatusForm() {
+interface SetStatusFormProps {
+  onStatusUpdate: (status: { text?: string; emoji?: string; expiration?: number }) => void;
+}
+
+function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { pop } = useNavigation();
 
@@ -24,20 +29,34 @@ function SetStatusForm() {
       const client = getSlackWebClient();
 
       const duration = values.duration ? parseInt(values.duration) * 60 : undefined;
+      const expiration = duration ? Math.floor(Date.now() / 1000) + duration : 0;
 
+      // Set the status first
       await client.users.profile.set({
         profile: {
           status_text: values.text,
           status_emoji: values.emoji ? `:${values.emoji.replace(/:/g, "")}:` : "",
-          status_expiration: duration ? Math.floor(Date.now() / 1000) + duration : 0,
+          status_expiration: expiration,
         },
       });
 
-      await showHUD(
-        values.text
-          ? `Status updated: ${values.text} ${duration ? `for ${duration} minute(s)` : ""}`
-          : "Status cleared",
-      );
+      // Set do not disturb if requested
+      if (values.pauseNotifications && duration) {
+        await client.dnd.setSnooze({ num_minutes: Math.ceil(duration / 60) });
+      }
+
+      // Update parent's status immediately
+      onStatusUpdate({
+        text: values.text,
+        emoji: values.emoji ? `:${values.emoji.replace(/:/g, "")}:` : undefined,
+        expiration: expiration || undefined
+      });
+
+      await showToast({
+        style: Toast.Style.Success,
+        title: "Status updated",
+        message: values.text || "Status cleared",
+      });
       pop();
     } catch (error) {
       await showFailureToast(String(error));
@@ -61,6 +80,11 @@ function SetStatusForm() {
         id="duration"
         title="Duration (minutes)"
         placeholder="How long? (leave empty for no expiration)"
+      />
+      <Form.Checkbox
+        id="pauseNotifications"
+        label="Pause notifications"
+        title="Do Not Disturb"
       />
     </Form>
   );
@@ -135,7 +159,7 @@ function SetStatus() {
           }
           actions={
             <ActionPanel>
-              <Action title="Set Custom Status" onAction={() => push(<SetStatusForm />)} />
+              <Action title="Set Custom Status" onAction={() => push(<SetStatusForm onStatusUpdate={setCurrentStatus} />)} />
               {currentStatus?.text && (
                 <Action
                   title="Clear Status"
