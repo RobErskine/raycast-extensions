@@ -64,6 +64,10 @@ If you don't want to log in through OAuth, you can use an access token instead. 
 
          # Command: Set Status
           - users.profile:read
+          - emojis:read
+
+         # Command: Search Emojis
+          - emojis:read
 
    settings:
      org_deploy_enabled: false

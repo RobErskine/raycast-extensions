@@ -5,9 +5,34 @@ import { withSlackClient } from "./shared/withSlackClient";
 import { DEFAULT_PRESETS, usePresets } from "./utils/status-presets";
 import { nanoid } from "nanoid";
 import { SlackStatusPreset, SlackClient } from "./shared/client";
-import { getEmojiForCode } from "./utils/status-emojis";
+import { getEmojiForCode, slackEmojiCodeMap } from "./utils/status-emojis";
 import { formatRelative } from "date-fns";
-import { showFailureToast } from "@raycast/utils";
+import { showFailureToast, useCachedPromise } from "@raycast/utils";
+
+// Extended preset interface to include custom emoji URL
+interface ExtendedSlackStatusPreset extends SlackStatusPreset {
+  customEmojiUrl?: string;
+}
+
+// Helper function to get the appropriate icon for the status
+function getStatusIcon(emojiCode?: string, workspaceEmojis?: Record<string, string>) {
+  if (!emojiCode) return Icon.Bubble;
+  
+  // Remove colons from emoji code
+  const cleanCode = emojiCode.replace(/:/g, "");
+  
+  // Check if it's a custom workspace emoji
+  if (workspaceEmojis && workspaceEmojis[cleanCode]) {
+    const url = workspaceEmojis[cleanCode];
+    // Only use URL if it's a direct image URL
+    if (typeof url === 'string' && url.startsWith('http')) {
+      return url;
+    }
+  }
+  
+  // Fall back to standard emoji or default icon
+  return getEmojiForCode(cleanCode) || Icon.Bubble;
+}
 
 interface FormValues {
   text: string;
@@ -24,6 +49,21 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { pop } = useNavigation();
   const { addPreset } = usePresets();
+  
+  // Get common emojis from the slackEmojiCodeMap
+  const commonEmojis = Object.entries(slackEmojiCodeMap)
+    .slice(0, 50) // Limit to first 50 emojis to avoid overwhelming the dropdown
+    .map(([code, emoji]) => ({
+      name: code.replace(/:/g, ""),
+      title: `${code} ${emoji}`,
+      emoji: emoji
+    }));
+  
+  // Fetch emojis from Slack API
+  const { data: emojiData, isLoading: isLoadingEmojis } = useCachedPromise(async () => {
+    const slackWebClient = getSlackWebClient();
+    return await slackWebClient.emoji.list();
+  }, []);
 
   async function handleSubmit(values: FormValues) {
     try {
@@ -76,13 +116,28 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
           <Action.SubmitForm
             title="Save as Preset"
             onSubmit={async (values: FormValues) => {
-              const preset: SlackStatusPreset = {
+              // Get the emoji code and check if it's a custom emoji
+              const emojiName = values.emoji ? values.emoji.replace(/:/g, "") : "speech_balloon";
+              const emojiCode = `:${emojiName}:`;
+              
+              // Check if this is a custom emoji from the workspace
+              let customEmojiUrl: string | undefined;
+              if (emojiData?.emoji && emojiName in emojiData.emoji) {
+                const url = emojiData.emoji[emojiName];
+                if (typeof url === 'string' && url.startsWith('http')) {
+                  customEmojiUrl = url;
+                }
+              }
+              
+              const preset: ExtendedSlackStatusPreset = {
                 id: nanoid(),
                 title: values.text || "Custom Status",
-                emojiCode: values.emoji ? `:${values.emoji.replace(/:/g, "")}:` : ":speech_balloon:",
+                emojiCode: emojiCode,
                 defaultDuration: values.duration ? parseInt(values.duration) : 0,
                 pauseNotifications: values.pauseNotifications,
+                customEmojiUrl: customEmojiUrl,
               };
+              
               await addPreset(preset);
               await showToast({
                 style: Toast.Style.Success,
@@ -94,7 +149,33 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
       }
     >
       <Form.TextField id="text" title="Status Text" placeholder="What's happening? (leave empty to clear)" />
-      <Form.TextField id="emoji" title="Emoji" placeholder="Enter emoji name without colons (e.g. coffee)" />
+      <Form.Dropdown id="emoji" title="Emoji" isLoading={isLoadingEmojis}>
+        <Form.Dropdown.Item key="empty" value="" title="No emoji" />
+        
+        {/* Common Unicode Emojis Section */}
+        <Form.Dropdown.Section title="Common Emojis">
+          {commonEmojis.map(item => (
+            <Form.Dropdown.Item 
+              key={`common-${item.name}`} 
+              value={item.name} 
+              title={`${item.name}`}
+              icon={{ source: item.emoji }}
+            />
+          ))}
+        </Form.Dropdown.Section>
+        
+        {/* Workspace Emojis Section */}
+        <Form.Dropdown.Section title="Workspace Emojis">
+          {emojiData?.emoji && Object.entries(emojiData.emoji).map(([name, url]) => (
+            <Form.Dropdown.Item 
+              key={name} 
+              value={name} 
+              title={`${name}`} 
+              icon={typeof url === 'string' && url.startsWith('http') ? url : undefined} 
+            />
+          ))}
+        </Form.Dropdown.Section>
+      </Form.Dropdown>
       <Form.TextField
         id="duration"
         title="Duration (minutes)"
@@ -110,6 +191,12 @@ function SetStatus() {
   const [currentStatus, setCurrentStatus] = useState<{ text?: string; emoji?: string; expiration?: number }>();
   const { push } = useNavigation();
   const { customPresets, deletePreset, refreshPresets } = usePresets();
+  
+  // Fetch emojis from Slack API to get custom emoji URLs
+  const { data: emojiData } = useCachedPromise(async () => {
+    const slackWebClient = getSlackWebClient();
+    return await slackWebClient.emoji.list();
+  }, []);
 
   useEffect(() => {
     async function initialize() {
@@ -171,7 +258,7 @@ function SetStatus() {
     <List isLoading={isLoading}>
       <List.Section title="Current Status">
         <List.Item
-          icon={currentStatus?.emoji ? getEmojiForCode(currentStatus.emoji.replace(/:/g, "")) : Icon.Bubble}
+          icon={getStatusIcon(currentStatus?.emoji, emojiData?.emoji)}
           title={currentStatus?.text || "No Status Set"}
           subtitle={
             currentStatus?.expiration
@@ -218,33 +305,42 @@ function SetStatus() {
 
       {customPresets.length > 0 && (
         <List.Section title="My Presets">
-          {customPresets.map((preset: SlackStatusPreset) => (
-            <List.Item
-              key={preset.id}
-              icon={getEmojiForCode(preset.emojiCode)}
-              title={preset.title}
-              subtitle={preset.defaultDuration > 0 ? `${preset.defaultDuration}m` : "No expiration"}
-              accessories={[...(preset.pauseNotifications ? [{ icon: Icon.BellDisabled }] : [])]}
-              actions={
-                <ActionPanel>
-                  <Action title="Set Status" onAction={() => handlePresetSelect(preset)} />
-                  <Action
-                    title="Delete Preset"
-                    style={Action.Style.Destructive}
-                    onAction={async () => {
-                      if (preset.id) {
-                        await deletePreset(preset.id);
-                      }
-                      await showToast({
-                        style: Toast.Style.Success,
-                        title: "Preset deleted",
-                      });
-                    }}
-                  />
-                </ActionPanel>
-              }
-            />
-          ))}
+          {customPresets.map((preset) => {
+            // Check if this is an extended preset with a custom emoji URL
+            const extendedPreset = preset as ExtendedSlackStatusPreset;
+            const customEmojiUrl = extendedPreset.customEmojiUrl;
+            
+            // Use custom URL if available, otherwise use standard emoji
+            const presetIcon = customEmojiUrl || getEmojiForCode(preset.emojiCode.replace(/:/g, ""));
+            
+            return (
+              <List.Item
+                key={preset.id}
+                icon={presetIcon}
+                title={preset.title}
+                subtitle={preset.defaultDuration > 0 ? `${preset.defaultDuration}m` : "No expiration"}
+                accessories={[...(preset.pauseNotifications ? [{ icon: Icon.BellDisabled }] : [])]}
+                actions={
+                  <ActionPanel>
+                    <Action title="Set Status" onAction={() => handlePresetSelect(preset)} />
+                    <Action
+                      title="Delete Preset"
+                      style={Action.Style.Destructive}
+                      onAction={async () => {
+                        if (preset.id) {
+                          await deletePreset(preset.id);
+                        }
+                        await showToast({
+                          style: Toast.Style.Success,
+                          title: "Preset deleted",
+                        });
+                      }}
+                    />
+                  </ActionPanel>
+                }
+              />
+            );
+          })}
         </List.Section>
       )}
 
@@ -252,7 +348,7 @@ function SetStatus() {
         {DEFAULT_PRESETS.map((preset) => (
           <List.Item
             key={preset.id}
-            icon={getEmojiForCode(preset.emojiCode)}
+            icon={getEmojiForCode(preset.emojiCode.replace(/:/g, ""))}
             title={preset.title}
             subtitle={preset.defaultDuration > 0 ? `${preset.defaultDuration}m` : "No expiration"}
             accessories={[...(preset.pauseNotifications ? [{ icon: Icon.BellDisabled }] : [])]}
