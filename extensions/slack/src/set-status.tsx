@@ -23,6 +23,12 @@ interface FormValues {
 
 interface SetStatusFormProps {
   onStatusUpdate: (status: { text?: string; emoji?: string; expiration?: number }) => void;
+  initialValues?: {
+    text?: string;
+    emoji?: string;
+    duration?: string;
+    pauseNotifications?: boolean;
+  };
 }
 
 // Helper function to get the appropriate icon for the status
@@ -54,14 +60,14 @@ function getStatusIcon(emojiCode?: string, workspaceEmojis?: Record<string, stri
   return Icon.Bubble;
 }
 
-function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
+function SetStatusForm({ onStatusUpdate, initialValues }: SetStatusFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { pop } = useNavigation();
   const { addPreset } = usePresets();
   
   // Get common emojis from the slackEmojiCodeMap
   const commonEmojis = Object.entries(slackEmojiCodeMap)
-    .slice(0, 50) // Limit to first 50 emojis to avoid overwhelming the dropdown
+    //.slice(0, 50) // Limit to first 50 emojis to avoid overwhelming the dropdown
     .map(([code, emoji]) => ({
       name: code.replace(/:/g, ""),
       title: `${code} ${emoji}`,
@@ -157,8 +163,18 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
         </ActionPanel>
       }
     >
-      <Form.TextField id="text" title="Status Text" placeholder="What's happening? (leave empty to clear)" />
-      <Form.Dropdown id="emoji" title="Emoji" isLoading={isLoadingEmojis}>
+      <Form.TextField 
+        id="text" 
+        title="Status Text" 
+        placeholder="What's happening? (leave empty to clear)" 
+        defaultValue={initialValues?.text}
+      />
+      <Form.Dropdown 
+        id="emoji" 
+        title="Emoji" 
+        isLoading={isLoadingEmojis}
+        defaultValue={initialValues?.emoji}
+      >
         <Form.Dropdown.Item key="empty" value="" title="No emoji" />
         
         {/* Common Unicode Emojis Section */}
@@ -189,8 +205,14 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
         id="duration"
         title="Duration (minutes)"
         placeholder="How long? (leave empty for no expiration)"
+        defaultValue={initialValues?.duration}
       />
-      <Form.Checkbox id="pauseNotifications" label="Pause notifications" title="Do Not Disturb" />
+      <Form.Checkbox 
+        id="pauseNotifications" 
+        label="Pause notifications" 
+        title="Do Not Disturb" 
+        defaultValue={initialValues?.pauseNotifications}
+      />
     </Form>
   );
 }
@@ -202,12 +224,14 @@ function StatusPresetItem({
   showDeleteAction = false,
   onPresetSelect,
   onPresetDelete,
+  onCustomDuration,
 }: {
   preset: SlackStatusPreset;
   icon: string | Image.ImageLike;
   showDeleteAction?: boolean;
   onPresetSelect: (preset: SlackStatusPreset) => void;
   onPresetDelete?: (presetId: string) => Promise<void>;
+  onCustomDuration?: (preset: SlackStatusPreset) => void;
 }) {
   return (
     <List.Item
@@ -219,6 +243,12 @@ function StatusPresetItem({
       actions={
         <ActionPanel>
           <Action title="Set Status" onAction={() => onPresetSelect(preset)} />
+          {onCustomDuration && (
+            <Action
+              title="Set with Custom Duration"
+              onAction={() => onCustomDuration(preset)}
+            />
+          )}
           {showDeleteAction && preset.id && onPresetDelete && (
             <Action
               title="Delete Preset"
@@ -306,6 +336,24 @@ function SetStatus() {
     }
   }
 
+  async function handleCustomDuration(preset: SlackStatusPreset) {
+    // Extract emoji name from the emoji code (remove colons)
+    const emojiName = preset.emojiCode ? preset.emojiCode.replace(/:/g, "") : "";
+    console.log(emojiName);
+    
+    push(
+      <SetStatusForm
+        onStatusUpdate={setCurrentStatus}
+        initialValues={{
+          text: preset.title,
+          emoji: emojiName,
+          // Leave duration empty for customization
+          pauseNotifications: preset.pauseNotifications,
+        }}
+      />
+    );
+  }
+
   return (
     <List isLoading={isLoading}>
       <List.Section title="Current Status">
@@ -375,6 +423,7 @@ function SetStatus() {
                 onPresetDelete={async (presetId) => {
                   await deletePreset(presetId);
                 }}
+                onCustomDuration={handleCustomDuration}
               />
             );
           })}
@@ -388,6 +437,7 @@ function SetStatus() {
             preset={preset}
             icon={getEmojiForCode(preset.emojiCode.replace(/:/g, ""))}
             onPresetSelect={handlePresetSelect}
+            onCustomDuration={handleCustomDuration}
           />
         ))}
       </List.Section>
