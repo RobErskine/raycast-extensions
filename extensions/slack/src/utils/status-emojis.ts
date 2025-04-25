@@ -1727,7 +1727,7 @@ export interface GetEmojiOptions {
 }
 
 export function getEmojiForCode(code: string, options?: GetEmojiOptions): string {
-  return slackEmojiCodeMap[code] ?? options?.fallbackEmoji ?? "💬";
+  return slackEmojiCodeMap[`:${code}:`] ?? options?.fallbackEmoji ?? "💬";
 }
 
 export interface GetCodeOptions {

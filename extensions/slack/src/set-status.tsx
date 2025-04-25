@@ -1,4 +1,4 @@
-import { Form, ActionPanel, Action, showToast, Toast, List, Icon, useNavigation } from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Toast, List, Icon, useNavigation, Image } from "@raycast/api";
 import { useState, useEffect } from "react";
 import { getSlackWebClient } from "./shared/client/WebClient";
 import { withSlackClient } from "./shared/withSlackClient";
@@ -14,11 +14,31 @@ interface ExtendedSlackStatusPreset extends SlackStatusPreset {
   customEmojiUrl?: string;
 }
 
+interface FormValues {
+  text: string;
+  emoji: string;
+  duration: string;
+  pauseNotifications: boolean;
+}
+
+interface SetStatusFormProps {
+  onStatusUpdate: (status: { text?: string; emoji?: string; expiration?: number }) => void;
+}
+
 // Helper function to get the appropriate icon for the status
 function getStatusIcon(emojiCode?: string, workspaceEmojis?: Record<string, string>) {
   if (!emojiCode) return Icon.Bubble;
   
-  // Remove colons from emoji code
+  // Ensure the emoji code has colons for standard emoji lookup
+  const formattedEmojiCode = emojiCode.startsWith(':') && emojiCode.endsWith(':') 
+    ? emojiCode 
+    : `:${emojiCode.replace(/:/g, "")}:`;
+  
+  // Try to get standard emoji first
+  const standardEmoji = getEmojiForCode(formattedEmojiCode);
+  if (standardEmoji) return standardEmoji;
+  
+  // Remove colons from emoji code for custom workspace emoji lookup
   const cleanCode = emojiCode.replace(/:/g, "");
   
   // Check if it's a custom workspace emoji
@@ -30,19 +50,8 @@ function getStatusIcon(emojiCode?: string, workspaceEmojis?: Record<string, stri
     }
   }
   
-  // Fall back to standard emoji or default icon
-  return getEmojiForCode(cleanCode) || Icon.Bubble;
-}
-
-interface FormValues {
-  text: string;
-  emoji: string;
-  duration: string;
-  pauseNotifications: boolean;
-}
-
-interface SetStatusFormProps {
-  onStatusUpdate: (status: { text?: string; emoji?: string; expiration?: number }) => void;
+  // Fall back to default icon
+  return Icon.Bubble;
 }
 
 function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
@@ -186,6 +195,49 @@ function SetStatusForm({ onStatusUpdate }: SetStatusFormProps) {
   );
 }
 
+// Helper component to render a status preset item
+function StatusPresetItem({
+  preset,
+  icon,
+  showDeleteAction = false,
+  onPresetSelect,
+  onPresetDelete,
+}: {
+  preset: SlackStatusPreset;
+  icon: string | Image.ImageLike;
+  showDeleteAction?: boolean;
+  onPresetSelect: (preset: SlackStatusPreset) => void;
+  onPresetDelete?: (presetId: string) => Promise<void>;
+}) {
+  return (
+    <List.Item
+      key={preset.id}
+      icon={icon}
+      title={preset.title}
+      subtitle={preset.defaultDuration > 0 ? `${preset.defaultDuration}m` : "No expiration"}
+      accessories={[...(preset.pauseNotifications ? [{ icon: Icon.BellDisabled }] : [])]}
+      actions={
+        <ActionPanel>
+          <Action title="Set Status" onAction={() => onPresetSelect(preset)} />
+          {showDeleteAction && preset.id && onPresetDelete && (
+            <Action
+              title="Delete Preset"
+              style={Action.Style.Destructive}
+              onAction={async () => {
+                await onPresetDelete(preset.id!);
+                await showToast({
+                  style: Toast.Style.Success,
+                  title: "Preset deleted",
+                });
+              }}
+            />
+          )}
+        </ActionPanel>
+      }
+    />
+  );
+}
+
 function SetStatus() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStatus, setCurrentStatus] = useState<{ text?: string; emoji?: string; expiration?: number }>();
@@ -314,30 +366,15 @@ function SetStatus() {
             const presetIcon = customEmojiUrl || getEmojiForCode(preset.emojiCode.replace(/:/g, ""));
             
             return (
-              <List.Item
+              <StatusPresetItem
                 key={preset.id}
+                preset={preset}
                 icon={presetIcon}
-                title={preset.title}
-                subtitle={preset.defaultDuration > 0 ? `${preset.defaultDuration}m` : "No expiration"}
-                accessories={[...(preset.pauseNotifications ? [{ icon: Icon.BellDisabled }] : [])]}
-                actions={
-                  <ActionPanel>
-                    <Action title="Set Status" onAction={() => handlePresetSelect(preset)} />
-                    <Action
-                      title="Delete Preset"
-                      style={Action.Style.Destructive}
-                      onAction={async () => {
-                        if (preset.id) {
-                          await deletePreset(preset.id);
-                        }
-                        await showToast({
-                          style: Toast.Style.Success,
-                          title: "Preset deleted",
-                        });
-                      }}
-                    />
-                  </ActionPanel>
-                }
+                showDeleteAction={true}
+                onPresetSelect={handlePresetSelect}
+                onPresetDelete={async (presetId) => {
+                  await deletePreset(presetId);
+                }}
               />
             );
           })}
@@ -346,17 +383,11 @@ function SetStatus() {
 
       <List.Section title="Default Presets">
         {DEFAULT_PRESETS.map((preset) => (
-          <List.Item
+          <StatusPresetItem
             key={preset.id}
+            preset={preset}
             icon={getEmojiForCode(preset.emojiCode.replace(/:/g, ""))}
-            title={preset.title}
-            subtitle={preset.defaultDuration > 0 ? `${preset.defaultDuration}m` : "No expiration"}
-            accessories={[...(preset.pauseNotifications ? [{ icon: Icon.BellDisabled }] : [])]}
-            actions={
-              <ActionPanel>
-                <Action title="Set Status" onAction={() => handlePresetSelect(preset)} />
-              </ActionPanel>
-            }
+            onPresetSelect={handlePresetSelect}
           />
         ))}
       </List.Section>
