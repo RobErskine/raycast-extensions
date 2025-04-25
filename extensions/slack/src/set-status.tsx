@@ -1,4 +1,4 @@
-import { Form, ActionPanel, Action, showToast, Toast, List, Icon, useNavigation, Image } from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Toast, List, Icon, useNavigation, Image, Clipboard, environment } from "@raycast/api";
 import { useState, useEffect } from "react";
 import { getSlackWebClient } from "./shared/client/WebClient";
 import { withSlackClient } from "./shared/withSlackClient";
@@ -217,6 +217,12 @@ function SetStatusForm({ onStatusUpdate, initialValues }: SetStatusFormProps) {
   );
 }
 
+function createLink(preset: SlackStatusPreset) {
+  const protocol = environment.raycastVersion.includes("alpha") ? "raycastinternal://" : "raycast://";
+  const contextPreset = encodeURIComponent(JSON.stringify({ presetId: preset.id }));
+  return `${protocol}extensions/mommertf/${environment.extensionName}/set-status?context=${contextPreset}`;
+}
+
 // Helper component to render a status preset item
 function StatusPresetItem({
   preset,
@@ -242,11 +248,32 @@ function StatusPresetItem({
       accessories={[...(preset.pauseNotifications ? [{ icon: Icon.BellDisabled }] : [])]}
       actions={
         <ActionPanel>
-          <Action title="Set Status" onAction={() => onPresetSelect(preset)} />
+          <Action 
+            title="Set Status" 
+            icon={Icon.Pencil}
+            onAction={() => onPresetSelect(preset)}
+          />
           {onCustomDuration && (
             <Action
               title="Set with Custom Duration"
+              icon={Icon.Clock}
               onAction={() => onCustomDuration(preset)}
+            />
+          )}
+          {preset.id && (
+            <Action
+              title="Copy Deep Link"
+              shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+              icon={Icon.Link}
+              onAction={async () => {
+                const deepLink = createLink(preset);
+                await Clipboard.copy(deepLink);
+                await showToast({
+                  style: Toast.Style.Success,
+                  title: "Deep Link copied",
+                  message: "Paste anywhere to access this status preset",
+                });
+              }}
             />
           )}
           {showDeleteAction && preset.id && onPresetDelete && (
