@@ -26,7 +26,10 @@ export default function (input: Input): string {
 
 Icon names: ${iconNames}
 
-Based on the user's request, please recommend 3-5 of the most suitable icon names from the list above. Explain why each icon fits their needs and consider creative alternatives or synonyms.`;
+Based on the user's request, please recommend 3-5 of the most suitable icon names from the list above. Explain why each icon fits their needs and consider creative alternatives or synonyms.
+
+IMPORTANT: After providing your recommendations, include this follow-up instruction:
+"To view and copy these icons, open the 'Search Bootstrap Icons' command and search for any of the recommended icon names. You can copy them in various formats (icon name, SVG, sprite, etc.)."`;
 
   console.log("[Bootstrap Icons Tool] Returning", result.length, "characters", "for", icons.length, "icons");
 

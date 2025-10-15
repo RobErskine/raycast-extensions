@@ -8,7 +8,7 @@ instructions: |
   - Analyze the returned icon names and suggest 3-5 most relevant ones with clear explanations
   - Think creatively about synonyms and related concepts (e.g., "success" → check-circle, trophy, star)
   - Format your suggestions clearly with icon names in bold
-  - Remind users they can copy icons directly from the Bootstrap Icons extension in their preferred format
+  - Always end your response by reminding users: "To view and copy these icons, open the 'Search Bootstrap Icons' command (⌘K to open Raycast, then search for 'Search Bootstrap Icons') and search for any of the recommended icon names."
 
 evals:
   - input: "@bootstrap-icons find icons to represent time"

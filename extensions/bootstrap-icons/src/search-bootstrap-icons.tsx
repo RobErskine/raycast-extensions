@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ActionPanel, Action, Grid, getPreferenceValues } from "@raycast/api";
+import { ActionPanel, Action, Grid, getPreferenceValues, Icon } from "@raycast/api";
 import iconsData from "./icons-data.json";
 
 interface BootstrapIcon {
@@ -50,6 +50,7 @@ export default function Command() {
             <Action.CopyToClipboard
               key="iconName"
               title="Copy as Icon Name"
+              icon={Icon.Pencil}
               content={icon.name}
               shortcut={{ modifiers: ["cmd"], key: "c" }}
             />
@@ -58,6 +59,7 @@ export default function Command() {
             <Action.CopyToClipboard
               key="embeddedSvg"
               title="Copy as Embedded SVG"
+              icon={Icon.CodeBlock}
               content={icon.svgContent}
               shortcut={{ modifiers: ["cmd", "shift"], key: "e" }}
             />
@@ -66,6 +68,7 @@ export default function Command() {
             <Action.CopyToClipboard
               key="sprite"
               title="Copy as Sprite"
+              icon={Icon.Tree}
               content={spriteExample}
               shortcut={{ modifiers: ["cmd", "shift"], key: "s" }}
             />
@@ -74,6 +77,7 @@ export default function Command() {
             <Action.CopyToClipboard
               key="externalImage"
               title="Copy as External Image"
+              icon={Icon.Image}
               content={externalImageExample}
               shortcut={{ modifiers: ["cmd", "shift"], key: "i" }}
             />
@@ -82,6 +86,7 @@ export default function Command() {
             <Action.CopyToClipboard
               key="iconFont"
               title="Copy as Icon Font"
+              icon={Icon.Text}
               content={iconFontExample}
               shortcut={{ modifiers: ["cmd", "shift"], key: "f" }}
             />
