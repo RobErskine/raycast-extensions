@@ -7,10 +7,6 @@ interface BootstrapIcon {
   svgContent: string;
 }
 
-interface Preferences {
-  preferredCopyMethod: "iconName" | "embeddedSvg" | "sprite" | "externalImage" | "iconFont";
-}
-
 function getSvgDataUri(svgContent: string): string {
   const encodedSvg = encodeURIComponent(svgContent);
   return `data:image/svg+xml,${encodedSvg}`;
@@ -18,7 +14,7 @@ function getSvgDataUri(svgContent: string): string {
 
 export default function Command() {
   const [searchText, setSearchText] = useState("");
-  const preferences = getPreferenceValues<Preferences>();
+  const { preferredCopyMethod } = getPreferenceValues<{ preferredCopyMethod: string }>();
 
   const icons = iconsData as BootstrapIcon[];
 
@@ -95,9 +91,9 @@ export default function Command() {
 
         // Reorder actions to put preferred method first
         const orderedActions = [
-          allActions[preferences.preferredCopyMethod],
+          allActions[preferredCopyMethod as keyof typeof allActions],
           ...Object.entries(allActions)
-            .filter(([key]) => key !== preferences.preferredCopyMethod)
+            .filter(([key]) => key !== preferredCopyMethod)
             .map(([, action]) => action),
         ];
 
