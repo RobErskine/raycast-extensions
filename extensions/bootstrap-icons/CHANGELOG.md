@@ -1,7 +1,7 @@
 # Bootstrap Icons Changelog
 
 ## [1.0.1] - {PR_MERGE_DATE}
-- Feature: For users that have access to UI, on no results, ask AI for icons similar to your query (similar to Raycast's Emoji search)
+- Feature: For users that have access to AI, on no results, ask AI for icons similar to your query (similar to Raycast's Emoji search)
 
 ## [Initial Version] - 2025-10-15
 - Search for Bootstrap icons
