@@ -23,7 +23,7 @@ export default function Command() {
   const [aiSuggestedIcons, setAiSuggestedIcons] = useState<BootstrapIcon[]>([]);
   const [isAiSearching, setIsAiSearching] = useState(false);
   const { preferredCopyMethod } = getPreferenceValues<{ preferredCopyMethod: string }>();
-  
+
   // Cache for AI search results to prevent redundant API calls
   const aiCacheRef = useRef<Map<string, string[]>>(new Map());
   // Track ongoing AI requests to prevent duplicates
@@ -40,7 +40,6 @@ export default function Command() {
   // AI-powered search when no results are found
   useEffect(() => {
     let cancelled = false;
-    let debounceTimeout: NodeJS.Timeout | undefined;
 
     async function performAiSearch() {
       // Only perform AI search if:
@@ -141,7 +140,7 @@ export default function Command() {
     }
 
     // Debounce AI search to prevent rapid successive calls
-    debounceTimeout = setTimeout(() => {
+    const debounceTimeout = setTimeout(() => {
       performAiSearch();
     }, AI_SEARCH_DEBOUNCE_MS);
 
