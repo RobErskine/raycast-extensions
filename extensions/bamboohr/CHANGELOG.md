@@ -1,6 +1,6 @@
 # BambooHR Changelog
 
-## [Windows Support] - 2026-01-22
+## [Windows Support] - {PR_MERGE_DATE}
 
 - Added Windows support to package.json
 - Added Copy Email Address action to employee details command with cmd + enter 
