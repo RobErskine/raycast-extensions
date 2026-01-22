@@ -71,11 +71,19 @@ export default function Employee(props: EmployeeProps) {
       actions={
         <ActionPanel title="Employee Actions">
           {employee.workEmail && (
-            <Action.OpenInBrowser
-              icon={Icon.Envelope}
-              title={`Email ${firstName} ${employee.lastName}`}
-              url={`mailto:${employee.workEmail}`}
-            />
+            <>
+              <Action.OpenInBrowser
+                icon={Icon.Envelope}
+                title={`Email ${firstName} ${employee.lastName}`}
+                url={`mailto:${employee.workEmail}`}
+              />
+              <Action.CopyToClipboard
+                icon={Icon.Clipboard}
+                title="Copy Email Address"
+                content={employee.workEmail}
+                shortcut={{ modifiers: ["cmd"], key: "return" }}
+              />
+            </>
           )}
           {employee.workPhone && (
             <Action.OpenInBrowser
