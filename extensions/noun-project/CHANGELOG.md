@@ -1,6 +1,6 @@
 # Noun Project Changelog
 
-## [1.0.1] - {PR_MERGE_DATE}
+## [1.0.1] - 2026-02-17
 
 - Added support for Windows
 
