@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Alert, Color, confirmAlert, Icon, List, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Alert, Color, confirmAlert, Icon, List, showToast, Toast, Keyboard } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { TodoEmptyView, TodoListItem } from "./components/todo-list";
 import { withFaite } from "./lib/auth";
@@ -45,7 +45,14 @@ function ListTodos({ list }: { list: FaiteList }) {
         <TodoEmptyView title={`${list.name} is empty`} description="Nothing open in this list." />
       ) : (
         rows.map((todo) => (
-          <TodoListItem key={todo.id} todo={todo} today={today} lists={lists} labels={labels} mutate={mutate} />
+          <TodoListItem key={todo.id} todo={todo} today={today} lists={lists} labels={labels} mutate={mutate}>
+            <Action.Push
+              title="New To-Do"
+              icon={Icon.Plus}
+              shortcut={Keyboard.Shortcut.Common.New}
+              target={<TodoForm mutate={mutate} defaultListId={list.id} />}
+            />
+          </TodoListItem>
         ))
       )}
     </List>
