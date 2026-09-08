@@ -1,5 +1,6 @@
-import { List } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, Keyboard } from "@raycast/api";
 import { TodoEmptyView, TodoListItem } from "./components/todo-list";
+import { TodoForm } from "./components/todo-form";
 import { withFaite } from "./lib/auth";
 import { todayIn } from "./lib/format";
 import { useLabels, useLists, useProfile, useTodos } from "./lib/hooks";
@@ -25,12 +26,27 @@ function Today() {
   const rows = today ? (todos ?? []) : [];
 
   return (
-    <List isLoading={loadingProfile || isLoading} searchBarPlaceholder="Filter today's to-dos">
+    <List
+      actions={
+        <ActionPanel>
+          <Action.Push title="New To-Do" icon={Icon.Plus} target={<TodoForm mutate={mutate} />} />
+        </ActionPanel>
+      }
+      isLoading={loadingProfile || isLoading}
+      searchBarPlaceholder="Filter today's to-dos"
+    >
       {rows.length === 0 && !isLoading && !loadingProfile ? (
         <TodoEmptyView title="Nothing scheduled for today" description="Enjoy it, or pull something out of Backlog." />
       ) : (
         rows.map((todo) => (
-          <TodoListItem key={todo.id} todo={todo} today={today!} lists={lists} labels={labels} mutate={mutate} />
+          <TodoListItem key={todo.id} todo={todo} today={today!} lists={lists} labels={labels} mutate={mutate}>
+            <Action.Push
+              title="New To-Do"
+              icon={Icon.Plus}
+              shortcut={Keyboard.Shortcut.Common.New}
+              target={<TodoForm mutate={mutate} />}
+            />
+          </TodoListItem>
         ))
       )}
     </List>

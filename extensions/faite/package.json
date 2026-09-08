@@ -84,6 +84,21 @@
       "mode": "view"
     },
     {
+      "name": "day-note",
+      "title": "Day Note",
+      "subtitle": "Faite",
+      "description": "Write the Markdown note for a day \u2014 today, or any date you name",
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "date",
+          "placeholder": "YYYY-MM-DD (optional)",
+          "type": "text",
+          "required": false
+        }
+      ]
+    },
+    {
       "name": "connect-account",
       "title": "Connect Faite Account",
       "subtitle": "Faite",

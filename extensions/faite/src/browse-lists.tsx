@@ -1,9 +1,12 @@
-import { Action, ActionPanel, Color, Icon, List } from "@raycast/api";
+import { Action, ActionPanel, Alert, Color, confirmAlert, Icon, List, showToast, Toast } from "@raycast/api";
+import { showFailureToast } from "@raycast/utils";
 import { TodoEmptyView, TodoListItem } from "./components/todo-list";
 import { withFaite } from "./lib/auth";
 import { todayIn } from "./lib/format";
 import { useLabels, useLists, useProfile, useTodos } from "./lib/hooks";
-import { apiHost } from "./lib/api";
+import { api, apiHost } from "./lib/api";
+import { ListForm } from "./components/list-form";
+import { TodoForm } from "./components/todo-form";
 import type { List as FaiteList } from "./lib/types";
 
 /**
@@ -24,7 +27,20 @@ function ListTodos({ list }: { list: FaiteList }) {
   const rows = todos ?? [];
 
   return (
-    <List isLoading={isLoading} navigationTitle={list.name} searchBarPlaceholder={`Filter ${list.name}`}>
+    <List
+      isLoading={isLoading}
+      navigationTitle={list.name}
+      searchBarPlaceholder={`Filter ${list.name}`}
+      actions={
+        <ActionPanel>
+          <Action.Push
+            title="New To-Do"
+            icon={Icon.Plus}
+            target={<TodoForm mutate={mutate} defaultListId={list.id} />}
+          />
+        </ActionPanel>
+      }
+    >
       {rows.length === 0 && !isLoading ? (
         <TodoEmptyView title={`${list.name} is empty`} description="Nothing open in this list." />
       ) : (
@@ -37,7 +53,29 @@ function ListTodos({ list }: { list: FaiteList }) {
 }
 
 function BrowseLists() {
-  const { data: lists, isLoading } = useLists();
+  const { data: lists, isLoading, mutate } = useLists();
+
+  const deleteList = async (list: FaiteList) => {
+    const confirmed = await confirmAlert({
+      title: `Delete “${list.name}”?`,
+      // Says what the server actually does. A user who expects the to-dos to
+      // go with it would otherwise be surprised in the wrong direction.
+      message: "Any to-dos in this list will move to Backlog. This can't be undone from Raycast.",
+      icon: { source: Icon.Trash, tintColor: Color.Red },
+      primaryAction: { title: "Delete", style: Alert.ActionStyle.Destructive },
+    });
+    if (!confirmed) return;
+
+    try {
+      await mutate(api.del(`/lists/${list.id}`), {
+        optimisticUpdate: (data) => data?.filter((l) => l.id !== list.id),
+        shouldRevalidateAfter: true,
+      });
+      await showToast({ style: Toast.Style.Success, title: "List deleted" });
+    } catch (error) {
+      await showFailureToast(error, { title: "Couldn't delete that list" });
+    }
+  };
   const visible = (lists ?? []).filter((list) => !list.archivedAt);
 
   return (
@@ -59,7 +97,20 @@ function BrowseLists() {
             actions={
               <ActionPanel>
                 <Action.Push title="Show To-Dos" icon={Icon.ArrowRight} target={<ListTodos list={list} />} />
+                <Action.Push title="Edit List" icon={Icon.Pencil} target={<ListForm list={list} mutate={mutate} />} />
+                <Action.Push title="New List" icon={Icon.Plus} target={<ListForm mutate={mutate} />} />
                 <Action.OpenInBrowser title="Open in Faite" url={`${apiHost()}/board`} />
+                {/* Backlog is where a deleted list's to-dos go, so the server
+                    refuses to delete it. Hiding the action is honest; showing
+                    one that always 409s is not. */}
+                {!list.isBacklog && (
+                  <Action
+                    title="Delete List"
+                    icon={Icon.Trash}
+                    style={Action.Style.Destructive}
+                    onAction={() => deleteList(list)}
+                  />
+                )}
               </ActionPanel>
             }
           />

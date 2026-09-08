@@ -1,5 +1,6 @@
-import { List } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, Keyboard } from "@raycast/api";
 import { TodoEmptyView, TodoListItem } from "./components/todo-list";
+import { TodoForm } from "./components/todo-form";
 import { withFaite } from "./lib/auth";
 import { todayIn } from "./lib/format";
 import { useLabels, useLists, useOverflow, useProfile } from "./lib/hooks";
@@ -28,7 +29,15 @@ function Overflow() {
   const rows = (overflow ?? []).filter((todo) => todo.status === "open");
 
   return (
-    <List isLoading={loadingProfile || isLoading} searchBarPlaceholder="Filter overflow">
+    <List
+      actions={
+        <ActionPanel>
+          <Action.Push title="New To-Do" icon={Icon.Plus} target={<TodoForm mutate={mutate} />} />
+        </ActionPanel>
+      }
+      isLoading={loadingProfile || isLoading}
+      searchBarPlaceholder="Filter overflow"
+    >
       {rows.length === 0 && !isLoading ? (
         <TodoEmptyView
           title="Nothing has slipped"
@@ -37,7 +46,14 @@ function Overflow() {
       ) : (
         <List.Section title="Overflow" subtitle={`${rows.length}`}>
           {rows.map((todo) => (
-            <TodoListItem key={todo.id} todo={todo} today={today ?? ""} lists={lists} labels={labels} mutate={mutate} />
+            <TodoListItem key={todo.id} todo={todo} today={today ?? ""} lists={lists} labels={labels} mutate={mutate}>
+              <Action.Push
+                title="New To-Do"
+                icon={Icon.Plus}
+                shortcut={Keyboard.Shortcut.Common.New}
+                target={<TodoForm mutate={mutate} />}
+              />
+            </TodoListItem>
           ))}
         </List.Section>
       )}

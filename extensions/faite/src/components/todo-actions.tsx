@@ -1,6 +1,8 @@
-import { Action, ActionPanel, Alert, confirmAlert, Color, Icon, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Alert, confirmAlert, Color, Icon, showToast, Toast, Keyboard } from "@raycast/api";
 import { MutatePromise, showFailureToast } from "@raycast/utils";
 import { api } from "../lib/api";
+import { DayNoteForm } from "./day-note-form";
+import { TodoForm } from "./todo-form";
 import { addDays } from "../lib/format";
 import { todoUrl } from "../lib/hooks";
 import type { List, Todo } from "../lib/types";
@@ -111,7 +113,19 @@ export function TodoActions({ todo, today, lists, mutate, children }: Props) {
       <ActionPanel.Section>
         {children}
         {todo.status === "open" && <Action title="Complete" icon={Icon.CheckCircle} onAction={complete} />}
+        <Action.Push
+          title="Edit To-Do"
+          icon={Icon.Pencil}
+          shortcut={Keyboard.Shortcut.Common.Edit}
+          target={<TodoForm todo={todo} mutate={mutate} />}
+        />
         <Action.OpenInBrowser title="Open in Faite" url={todoUrl(todo.id)} />
+        {/* A to-do's own notes are its `description`, edited above. This is
+            the note for the DAY it sits on — a different thing, and only
+            offered when the to-do actually has a day. */}
+        {todo.scheduledDate && (
+          <Action.Push title="Edit Day Note" icon={Icon.Document} target={<DayNoteForm date={todo.scheduledDate} />} />
+        )}
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Schedule">

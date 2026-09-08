@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { List } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, Keyboard } from "@raycast/api";
 import { TodoEmptyView, TodoListItem } from "./components/todo-list";
+import { TodoForm } from "./components/todo-form";
 import { withFaite } from "./lib/auth";
 import { todayIn } from "./lib/format";
 import { useLabels, useLists, useProfile, useTodos } from "./lib/hooks";
@@ -38,20 +39,24 @@ function SearchTodos() {
           <List.Dropdown.Item title="All" value="all" />
         </List.Dropdown>
       }
+      actions={
+        <ActionPanel>
+          <Action.Push title="New To-Do" icon={Icon.Plus} target={<TodoForm mutate={mutate} />} />
+        </ActionPanel>
+      }
     >
       {rows.length === 0 && !isLoading ? (
         <TodoEmptyView title="No to-dos" description="Nothing matches that status yet." />
       ) : (
         rows.map((todo) => (
-          <TodoListItem
-            key={todo.id}
-            todo={todo}
-            today={today}
-            lists={lists}
-            labels={labels}
-            mutate={mutate}
-            showList
-          />
+          <TodoListItem key={todo.id} todo={todo} today={today} lists={lists} labels={labels} mutate={mutate} showList>
+            <Action.Push
+              title="New To-Do"
+              icon={Icon.Plus}
+              shortcut={Keyboard.Shortcut.Common.New}
+              target={<TodoForm mutate={mutate} />}
+            />
+          </TodoListItem>
         ))
       )}
     </List>
