@@ -142,5 +142,77 @@
     "lint": "ray lint",
     "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the `prepublishOnly` script and rerun `npm publish` again.\\nIf you wanted to publish it to the Raycast Store instead, use `npm run publish` instead.\\n\\n\" && exit 1",
     "publish": "ray publish"
-  }
+  },
+  "tools": [
+    {
+      "name": "get-todos",
+      "title": "Get To-Dos",
+      "description": "Read the caller's to-dos, filtered by status, list, day or label"
+    },
+    {
+      "name": "get-lists",
+      "title": "Get Lists",
+      "description": "Read the caller's lists, including what each one is for"
+    },
+    {
+      "name": "get-labels",
+      "title": "Get Labels",
+      "description": "Read the caller's labels"
+    },
+    {
+      "name": "get-tabs",
+      "title": "Get Tabs",
+      "description": "Read the caller's tabs \u2014 the groups their lists sit in"
+    },
+    {
+      "name": "get-backlog",
+      "title": "Get Backlog",
+      "description": "Read to-dos that exist but have not been scheduled"
+    },
+    {
+      "name": "get-overflow",
+      "title": "Get Overflow",
+      "description": "Read to-dos that have slipped past their scheduled day"
+    },
+    {
+      "name": "get-profile",
+      "title": "Get Profile",
+      "description": "Read the caller's timezone and Faite Loop settings"
+    },
+    {
+      "name": "get-day-note",
+      "title": "Get Day Note",
+      "description": "Read the Markdown note for one day"
+    },
+    {
+      "name": "create-todo",
+      "title": "Create To-Do",
+      "description": "Add a to-do, optionally with a list, dates and priority"
+    },
+    {
+      "name": "update-todo",
+      "title": "Update To-Do",
+      "description": "Change an existing to-do"
+    },
+    {
+      "name": "complete-todo",
+      "title": "Complete To-Do",
+      "description": "Mark a to-do as done"
+    },
+    {
+      "name": "delete-todo",
+      "title": "Delete To-Do",
+      "description": "Delete a to-do permanently"
+    },
+    {
+      "name": "set-day-note",
+      "title": "Set Day Note",
+      "description": "Write the Markdown note for one day"
+    },
+    {
+      "name": "create-list",
+      "title": "Create List",
+      "description": "Create a new list"
+    }
+  ]
 }

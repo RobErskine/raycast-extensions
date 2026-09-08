@@ -1,0 +1,140 @@
+instructions: |
+  Faite is a weekly planner. A to-do belongs to exactly one LIST (a board
+  column) and can carry any number of LABELS. Lists are grouped into TABS.
+
+  ## Resolve names to IDs — never guess one
+
+  Every write takes IDs, and every ID must come from a read. Call `get-lists`
+  or `get-labels` first and match the user's wording against what comes back.
+  A guessed ID fails, and a *plausible* guessed ID fails silently.
+
+  ## Two dates that mean different things
+
+  - `scheduledDate` is the day you plan to work on it.
+  - `deadline` is the day it must be done BY.
+
+  Most to-dos have neither. Only set one when the user actually names a day —
+  "buy milk" is not scheduled for today just because they said it today.
+
+  Days are civil dates in the user's own timezone. Call `get-profile` for the
+  timezone before working out what "today" or "tomorrow" is.
+
+  ## Backlog and Overflow are different questions
+
+  - `get-backlog` — what exists but is unscheduled.
+  - `get-overflow` — what was scheduled and has been missed.
+
+  Do not substitute one for the other. `get-overflow` reports placement, so
+  filter to open to-dos when the user asks what they still owe.
+
+  ## Filing
+
+  Read each list's `description` when deciding where a to-do goes — that field
+  exists to say what belongs there. If nothing clearly fits, omit `listId`
+  entirely: the to-do lands in Backlog, which is the correct default and not a
+  failure. Do not create a new list to avoid making that call; check
+  `get-lists` for something close first.
+
+  ## Extracting to-dos from text
+
+  When pulling to-dos out of a transcript, notes or an email, take only real
+  commitments — things someone agreed to do. Discussion, context and decisions
+  are not to-dos. Give each one an imperative title with the date wording
+  removed, and put any detail in `description`.
+
+evals:
+  - input: "@faite what's on my plate today?"
+    mocks:
+      get-profile:
+        timezone: "America/New_York"
+        overflowAfterDays: 3
+        visibleDays: 7
+        workdays: [1, 2, 3, 4, 5]
+      get-todos:
+        - id: "t1"
+          title: "Review the Q3 deck"
+          status: "open"
+          scheduledDate: "2026-09-08"
+    expected:
+      - callsTool: "get-todos"
+      - meetsCriteria: "Lists the to-dos scheduled for today."
+
+  - input: "@faite add buy milk to my errands list"
+    mocks:
+      get-lists:
+        - id: "list-errands"
+          name: "Errands"
+          description: "Things to pick up while out"
+          isBacklog: false
+        - id: "list-backlog"
+          name: "Backlog"
+          isBacklog: true
+      create-todo:
+        id: "t9"
+        title: "Buy milk"
+    expected:
+      - callsTool: "get-lists"
+      - callsTool:
+          name: "create-todo"
+          arguments:
+            title:
+              includes: "milk"
+            listId: "list-errands"
+
+  - input: "@faite what have I let slip?"
+    mocks:
+      get-overflow:
+        - id: "t3"
+          title: "Renew the domain"
+          status: "open"
+          scheduledDate: "2026-08-20"
+    expected:
+      - callsTool: "get-overflow"
+      - not:
+          callsTool: "get-backlog"
+
+  # The driving use case: pull commitments out of a meeting transcript in
+  # another extension and file them into Faite.
+  - input: "@faite turn the action items from my last Granola note into to-dos"
+    mocks:
+      get-lists:
+        - id: "list-work"
+          name: "Work"
+          description: "Anything for a client or a deadline"
+          isBacklog: false
+        - id: "list-backlog"
+          name: "Backlog"
+          isBacklog: true
+      create-todo:
+        id: "t10"
+        title: "Send the revised estimate"
+    expected:
+      - callsTool: "get-lists"
+      - callsTool: "create-todo"
+
+  - input: "@faite mark 'Review the Q3 deck' as done"
+    mocks:
+      get-todos:
+        - id: "t1"
+          title: "Review the Q3 deck"
+          status: "open"
+      complete-todo:
+        id: "t1"
+        status: "done"
+    expected:
+      - callsTool: "get-todos"
+      - callsTool:
+          name: "complete-todo"
+          arguments:
+            id: "t1"
+
+  - input: "@faite what did I write in my note for today?"
+    mocks:
+      get-profile:
+        timezone: "America/New_York"
+      get-day-note:
+        date: "2026-09-08"
+        body: "# Standup\n- shipped the API"
+    expected:
+      - callsTool: "get-profile"
+      - callsTool: "get-day-note"
