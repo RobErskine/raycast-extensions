@@ -1,0 +1,57 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "faite",
+  "title": "Faite",
+  "description": "Capture, find and triage your Faite to-dos without leaving Raycast",
+  "icon": "extension-icon.png",
+  "author": "Rob",
+  "categories": ["Productivity"],
+  "license": "MIT",
+  "platforms": ["macOS", "Windows"],
+  "commands": [
+    {
+      "name": "connect-account",
+      "title": "Connect Faite Account",
+      "subtitle": "Faite",
+      "description": "Sign in to Faite in your browser and connect it to Raycast",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "apiKey",
+      "title": "API Key",
+      "description": "Optional. Paste a read/write key from Faite → Settings → API Keys to skip the browser sign-in.",
+      "type": "password",
+      "required": false
+    },
+    {
+      "name": "apiHost",
+      "title": "API Host",
+      "description": "Only change this if you are running Faite locally.",
+      "type": "textfield",
+      "required": false,
+      "default": "https://myfaite.app"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.25",
+    "@raycast/utils": "^2.3.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.2.0",
+    "@types/node": "26.2.0",
+    "@types/react": "19.2.18",
+    "eslint": "^10.8.1",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the `prepublishOnly` script and rerun `npm publish` again.\\nIf you wanted to publish it to the Raycast Store instead, use `npm run publish` instead.\\n\\n\" && exit 1",
+    "publish": "ray publish"
+  }
+}
