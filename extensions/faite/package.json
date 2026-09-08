@@ -15,6 +15,47 @@
   ],
   "commands": [
     {
+      "name": "quick-add-todo",
+      "title": "Quick Add To-Do",
+      "subtitle": "Faite",
+      "description": "Capture a to-do without leaving what you're doing",
+      "mode": "no-view",
+      "arguments": [
+        {
+          "name": "text",
+          "placeholder": "To-do",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "placeholder": "Notes",
+          "type": "text",
+          "required": false
+        }
+      ],
+      "preferences": [
+        {
+          "name": "shouldCloseMainWindow",
+          "title": "Close Raycast",
+          "label": "Close the window immediately",
+          "description": "Close Raycast as soon as you hit enter, and confirm with a HUD instead of a toast.",
+          "type": "checkbox",
+          "required": false,
+          "default": true
+        },
+        {
+          "name": "dontUseAI",
+          "title": "Natural Language",
+          "label": "Don't use AI to parse dates and lists",
+          "description": "Take the text literally instead of asking Raycast AI to pull out dates, priority and a list.",
+          "type": "checkbox",
+          "required": false,
+          "default": false
+        }
+      ]
+    },
+    {
       "name": "today",
       "title": "Today",
       "subtitle": "Faite",
