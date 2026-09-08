@@ -5,10 +5,43 @@
   "description": "Capture, find and triage your Faite to-dos without leaving Raycast",
   "icon": "extension-icon.png",
   "author": "Rob",
-  "categories": ["Productivity"],
+  "categories": [
+    "Productivity"
+  ],
   "license": "MIT",
-  "platforms": ["macOS", "Windows"],
+  "platforms": [
+    "macOS",
+    "Windows"
+  ],
   "commands": [
+    {
+      "name": "today",
+      "title": "Today",
+      "subtitle": "Faite",
+      "description": "Today's to-dos \u2014 complete, reschedule or triage them",
+      "mode": "view"
+    },
+    {
+      "name": "overflow",
+      "title": "Overflow",
+      "subtitle": "Faite",
+      "description": "To-dos that slipped past your Faite Loop window",
+      "mode": "view"
+    },
+    {
+      "name": "search-todos",
+      "title": "Search To-Dos",
+      "subtitle": "Faite",
+      "description": "Search every to-do by title, list or label",
+      "mode": "view"
+    },
+    {
+      "name": "browse-lists",
+      "title": "Browse Lists",
+      "subtitle": "Faite",
+      "description": "Browse your lists and drill into one",
+      "mode": "view"
+    },
     {
       "name": "connect-account",
       "title": "Connect Faite Account",
@@ -21,7 +54,7 @@
     {
       "name": "apiKey",
       "title": "API Key",
-      "description": "Optional. Paste a read/write key from Faite → Settings → API Keys to skip the browser sign-in.",
+      "description": "Optional. Paste a read/write key from Faite \u2192 Settings \u2192 API Keys to skip the browser sign-in.",
       "type": "password",
       "required": false
     },
