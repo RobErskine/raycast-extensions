@@ -7,6 +7,7 @@
 - **Day Note** — write the Markdown note for any day, and jump to it from any scheduled to-do
 - Create, rename and delete lists
 - 14 AI tools — read, create, complete and file to-dos from Raycast AI, including pulling action items out of another extension's notes
+- **Faite Menu Bar** — today's count in the menu bar, with Overflow surfaced separately
 - Connect a Faite account, either by signing in through the browser or by pasting an API key
 - **Today** — the day's to-dos, with complete, reschedule and move actions
 - **Overflow** — triage to-dos that slipped past your Faite Loop window

@@ -104,6 +104,15 @@
       "subtitle": "Faite",
       "description": "Sign in to Faite in your browser and connect it to Raycast",
       "mode": "view"
+    },
+    {
+      "name": "menu-bar",
+      "title": "Faite Menu Bar",
+      "subtitle": "Faite",
+      "description": "Today's to-do count in the menu bar, with Overflow surfaced separately",
+      "mode": "menu-bar",
+      "interval": "10m",
+      "disabledByDefault": true
     }
   ],
   "preferences": [
