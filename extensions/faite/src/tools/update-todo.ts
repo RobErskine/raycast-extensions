@@ -47,13 +47,15 @@ type Input = {
  * signal, translated to a real `null` here before it reaches the API.
  */
 export default withFaite(async ({ id, ...patch }: Input) => {
-  const body = Object.fromEntries(
+  // `Record<string, unknown>`, not the inferred shape of `patch`: `labelIds`
+  // arrives as a comma-separated STRING (see `labelIdList`) and leaves as an
+  // array, so the value type genuinely changes on the way through.
+  const body: Record<string, unknown> = Object.fromEntries(
     Object.entries(patch)
       .filter(([, value]) => value !== undefined)
       .map(([key, value]) => [key, value === "" ? null : value]),
   );
 
-  // The comma list arrives as a string; the API wants a real array.
   if (typeof body.labelIds === "string") body.labelIds = labelIdList(body.labelIds) ?? [];
   return api.patch<Todo>(`/todos/${id}`, body);
 });

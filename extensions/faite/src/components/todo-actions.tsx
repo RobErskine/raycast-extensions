@@ -157,7 +157,7 @@ export function TodoActions({ todo, today, lists, mutate, children }: Props) {
           icon={Icon.Calendar}
           shortcut={{
             macOS: { modifiers: ["cmd", "shift"], key: "t" },
-            windows: { modifiers: ["ctrl", "shift"], key: "t" },
+            Windows: { modifiers: ["ctrl", "shift"], key: "t" },
           }}
           onAction={() => reschedule(today, "today")}
         />
@@ -166,7 +166,7 @@ export function TodoActions({ todo, today, lists, mutate, children }: Props) {
           icon={Icon.Calendar}
           shortcut={{
             macOS: { modifiers: ["cmd", "shift"], key: "m" },
-            windows: { modifiers: ["ctrl", "shift"], key: "m" },
+            Windows: { modifiers: ["ctrl", "shift"], key: "m" },
           }}
           onAction={() => shiftBy(1, "tomorrow")}
         />
@@ -183,7 +183,7 @@ export function TodoActions({ todo, today, lists, mutate, children }: Props) {
           }}
         />
         {todo.scheduledDate && (
-          <Action title="Unschedule" icon={Icon.CalendarSlash} onAction={() => reschedule(null, "unscheduled")} />
+          <Action title="Unschedule" icon={Icon.MinusCircle} onAction={() => reschedule(null, "unscheduled")} />
         )}
       </ActionPanel.Section>
 
@@ -211,7 +211,7 @@ export function TodoActions({ todo, today, lists, mutate, children }: Props) {
           style={Action.Style.Destructive}
           shortcut={{
             macOS: { modifiers: ["ctrl"], key: "x" },
-            windows: { modifiers: ["ctrl"], key: "x" },
+            Windows: { modifiers: ["ctrl"], key: "x" },
           }}
           onAction={remove}
         />
