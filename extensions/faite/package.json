@@ -99,13 +99,6 @@
       ]
     },
     {
-      "name": "connect-account",
-      "title": "Connect Faite Account",
-      "subtitle": "Faite",
-      "description": "Sign in to Faite in your browser and connect it to Raycast",
-      "mode": "view"
-    },
-    {
       "name": "menu-bar",
       "title": "Faite Menu Bar",
       "subtitle": "Faite",

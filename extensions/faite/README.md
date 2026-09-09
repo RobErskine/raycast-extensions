@@ -13,13 +13,12 @@ Capture, find and triage your [Faite](https://myfaite.app) to-dos without leavin
 | **Browse Lists** | Browse your lists and drill into one. |
 | **Day Note** | Write the Markdown note for a day. |
 | **Faite Menu Bar** | Today's count in the menu bar. Off by default. |
-| **Connect Faite Account** | Sign in and connect Raycast to Faite. |
 
 ## Connecting your account
 
-Run **Connect Faite Account**. It opens Faite in your browser, and once you sign in Raycast is handed an API key automatically — nothing to copy or paste.
+Run any command. Raycast will offer to sign you in, open Faite in your browser, and store the key for you — nothing to copy or paste. Once you are signed in, this extension's settings show a **Logged into Faite** row with a Logout button.
 
-If you would rather manage the key yourself, mint one in Faite under **Settings → API Keys** with **Write** enabled, and put it in this extension's preferences. A pasted key always takes precedence over a connected account, so it doubles as an override.
+If you would rather manage the key yourself, mint one in Faite under **Settings → API Keys** with **Write** enabled, and put it in this extension's preferences. A pasted key always takes precedence over a signed-in session, so it doubles as an override.
 
 Either way the key is scoped to `read` and `write` on Faite's public API. It cannot reach the sync transport or Faite's Google Places integration.
 
