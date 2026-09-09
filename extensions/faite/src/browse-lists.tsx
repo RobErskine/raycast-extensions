@@ -15,6 +15,13 @@ import type { List as FaiteList } from "./lib/types";
  * this away with its to-dos," so surfacing them here would undo the filing
  * decision the user already made.
  */
+/** Written out rather than `${n} open to-do(s)` — a parenthesised plural in a
+ * tooltip reads like a form field. */
+function countTooltip(count: number): string {
+  if (count === 0) return "Nothing open";
+  return count === 1 ? "1 open to-do" : `${count} open to-dos`;
+}
+
 function ListTodos({ list }: { list: FaiteList }) {
   const today = useToday();
 
@@ -60,6 +67,22 @@ function ListTodos({ list }: { list: FaiteList }) {
 function BrowseLists() {
   const { data: lists, isLoading, mutate } = useLists();
 
+  /**
+   * Open counts per list, from ONE request rather than one per list.
+   *
+   * The API has no count endpoint, and asking per list would be an N+1 against
+   * a key rate-limited to 120 requests a minute — a board with 20 lists would
+   * spend a sixth of that budget opening one view. Fetching the open to-dos
+   * once and grouping locally costs a single request that `useCachedPromise`
+   * then shares with every other view asking the same question.
+   */
+  const { data: openTodos, isLoading: loadingCounts } = useTodos({ status: "open" });
+
+  const counts = new Map<string, number>();
+  for (const todo of openTodos ?? []) {
+    if (todo.listId) counts.set(todo.listId, (counts.get(todo.listId) ?? 0) + 1);
+  }
+
   const deleteList = async (list: FaiteList) => {
     const confirmed = await confirmAlert({
       title: `Delete “${list.name}”?`,
@@ -98,7 +121,20 @@ function BrowseLists() {
             }
             title={list.name}
             subtitle={list.description ?? undefined}
-            accessories={list.isBacklog ? [{ tag: "Backlog" }] : []}
+            accessories={[
+              ...(list.isBacklog ? [{ tag: "Backlog" }] : []),
+              // Suppressed until the counts land, rather than showing "0" —
+              // an empty list and a list still loading look identical
+              // otherwise, and the whole point is knowing before you click.
+              ...(loadingCounts
+                ? []
+                : [
+                    {
+                      text: String(counts.get(list.id) ?? 0),
+                      tooltip: countTooltip(counts.get(list.id) ?? 0),
+                    },
+                  ]),
+            ]}
             actions={
               <ActionPanel>
                 <Action.Push title="Show To-Dos" icon={Icon.ArrowRight} target={<ListTodos list={list} />} />
