@@ -10,7 +10,5 @@
 - 14 AI tools — read, create, complete and file to-dos from Raycast AI, including pulling action items out of another extension's notes
 - **Faite Menu Bar** — today's count in the menu bar, with Overflow surfaced separately
 - Sign in through the browser, with Raycast's own login and logout controls — or paste an API key instead
-- **Today** — the day's to-dos, with complete, reschedule and move actions
-- **Overflow** — triage to-dos that slipped past your Faite Loop window
+- **My Lists** — your lists and the saved views (Today, Overflow, Backlog), each with an open count, and deep links to jump straight to one
 - **Search To-Dos** — search everything by title, list or label
-- **Browse Lists** — browse your lists and drill into one

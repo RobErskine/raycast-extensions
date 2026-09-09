@@ -35,7 +35,13 @@ function FaiteMenuBar() {
         {rows.length > 10 && (
           <MenuBarExtra.Item
             title={`…and ${rows.length - 10} more`}
-            onAction={() => launchCommand({ name: "today", type: LaunchType.UserInitiated })}
+            onAction={() =>
+              launchCommand({
+                name: "my-lists",
+                type: LaunchType.UserInitiated,
+                arguments: { view: "today" },
+              })
+            }
           />
         )}
       </MenuBarExtra.Section>
@@ -45,7 +51,13 @@ function FaiteMenuBar() {
           <MenuBarExtra.Item
             title="Triage Overflow"
             icon={Icon.Clock}
-            onAction={() => launchCommand({ name: "overflow", type: LaunchType.UserInitiated })}
+            onAction={() =>
+              launchCommand({
+                name: "my-lists",
+                type: LaunchType.UserInitiated,
+                arguments: { view: "overflow" },
+              })
+            }
           />
         </MenuBarExtra.Section>
       )}

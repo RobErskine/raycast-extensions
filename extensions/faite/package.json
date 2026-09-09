@@ -66,20 +66,6 @@
       ]
     },
     {
-      "name": "today",
-      "title": "Today",
-      "subtitle": "Faite",
-      "description": "Today's to-dos \u2014 complete, reschedule or triage them",
-      "mode": "view"
-    },
-    {
-      "name": "overflow",
-      "title": "Overflow",
-      "subtitle": "Faite",
-      "description": "To-dos that slipped past your Faite Loop window",
-      "mode": "view"
-    },
-    {
       "name": "search-todos",
       "title": "Search To-Dos",
       "subtitle": "Faite",
@@ -87,11 +73,33 @@
       "mode": "view"
     },
     {
-      "name": "browse-lists",
-      "title": "Browse Lists",
+      "name": "my-lists",
+      "title": "My Lists",
       "subtitle": "Faite",
-      "description": "Browse your lists and drill into one",
-      "mode": "view"
+      "description": "Your lists and saved views \u2014 Today, Overflow and Backlog \u2014 with open counts",
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "view",
+          "placeholder": "View",
+          "type": "dropdown",
+          "required": false,
+          "data": [
+            {
+              "title": "Today",
+              "value": "today"
+            },
+            {
+              "title": "Overflow",
+              "value": "overflow"
+            },
+            {
+              "title": "Backlog",
+              "value": "backlog"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "day-note",

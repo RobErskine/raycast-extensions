@@ -7,12 +7,16 @@ Capture, find and triage your [Faite](https://myfaite.app) to-dos without leavin
 | Command | What it does |
 | --- | --- |
 | **Quick Add To-Do** | Capture a to-do from anywhere. Understands "buy milk tomorrow", files it for you, and remembers the page you were on. |
-| **Today** | The day's to-dos — complete, reschedule, move or edit them. |
-| **Overflow** | Triage what slipped past its scheduled day. |
+| **My Lists** | Your lists, plus the saved views — Today, Overflow and Backlog — each with an open count. |
 | **Search To-Dos** | Search everything by title, list or label. |
-| **Browse Lists** | Browse your lists and drill into one. |
 | **Day Note** | Write the Markdown note for a day. |
 | **Faite Menu Bar** | Today's count in the menu bar. Off by default. |
+
+### Jumping straight to a view
+
+**My Lists** opens on an index of your lists and saved views. To go straight to one, pick it from the command's **View** dropdown — or, for a one-keystroke jump, highlight the view and use **Create Quicklink**, then give that Quicklink a hotkey in Raycast.
+
+Today and Overflow used to be separate commands. They are views over the same to-dos, so folding them in means one place to ask "what's today, what slipped, what's in Errands" — and a deep link still gets you there in a keystroke.
 
 ## Connecting your account
 
