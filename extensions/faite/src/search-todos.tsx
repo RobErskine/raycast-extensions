@@ -3,8 +3,7 @@ import { Action, ActionPanel, Icon, List, Keyboard } from "@raycast/api";
 import { TodoEmptyView, TodoListItem } from "./components/todo-list";
 import { TodoForm } from "./components/todo-form";
 import { withFaite } from "./lib/auth";
-import { todayIn } from "./lib/format";
-import { useLabels, useLists, useProfile, useTodos } from "./lib/hooks";
+import { useLabels, useLists, useToday, useTodos } from "./lib/hooks";
 
 /**
  * Search across every to-do.
@@ -18,8 +17,7 @@ import { useLabels, useLists, useProfile, useTodos } from "./lib/hooks";
 function SearchTodos() {
   const [status, setStatus] = useState<string>("open");
 
-  const { data: profile } = useProfile();
-  const today = profile ? todayIn(profile.timezone) : "";
+  const today = useToday();
 
   const { data: todos, isLoading, mutate } = useTodos(status === "all" ? {} : { status });
   const { data: lists } = useLists();

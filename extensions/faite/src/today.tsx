@@ -2,8 +2,7 @@ import { Action, ActionPanel, Icon, List, Keyboard } from "@raycast/api";
 import { TodoEmptyView, TodoListItem } from "./components/todo-list";
 import { TodoForm } from "./components/todo-form";
 import { withFaite } from "./lib/auth";
-import { todayIn } from "./lib/format";
-import { useLabels, useLists, useProfile, useTodos } from "./lib/hooks";
+import { useLabels, useLists, useToday, useTodos } from "./lib/hooks";
 
 /**
  * Today's to-dos.
@@ -14,16 +13,16 @@ import { useLabels, useLists, useProfile, useTodos } from "./lib/hooks";
  * profile loads.
  */
 function Today() {
-  const { data: profile, isLoading: loadingProfile } = useProfile();
-  const today = profile ? todayIn(profile.timezone) : undefined;
+  const today = useToday();
 
   const { data: todos, isLoading, mutate } = useTodos(today ? { scheduledDate: today, status: "open" } : {});
   const { data: lists } = useLists();
   const { data: labels } = useLabels();
 
-  // Without a resolved timezone the query above is unfiltered, so suppress
-  // the rows rather than briefly showing every open to-do as "today".
-  const rows = today ? (todos ?? []) : [];
+  // `useToday` starts on the machine's date and re-queries once the account's
+  // timezone lands, so this is always a real day's worth of rows — never the
+  // unfiltered set that an absent date used to produce.
+  const rows = todos ?? [];
 
   return (
     <List
@@ -32,14 +31,14 @@ function Today() {
           <Action.Push title="New To-Do" icon={Icon.Plus} target={<TodoForm mutate={mutate} />} />
         </ActionPanel>
       }
-      isLoading={loadingProfile || isLoading}
+      isLoading={isLoading}
       searchBarPlaceholder="Filter today's to-dos"
     >
-      {rows.length === 0 && !isLoading && !loadingProfile ? (
+      {rows.length === 0 && !isLoading ? (
         <TodoEmptyView title="Nothing scheduled for today" description="Enjoy it, or pull something out of Backlog." />
       ) : (
         rows.map((todo) => (
-          <TodoListItem key={todo.id} todo={todo} today={today!} lists={lists} labels={labels} mutate={mutate}>
+          <TodoListItem key={todo.id} todo={todo} today={today} lists={lists} labels={labels} mutate={mutate}>
             <Action.Push
               title="New To-Do"
               icon={Icon.Plus}

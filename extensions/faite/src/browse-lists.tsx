@@ -2,8 +2,7 @@ import { Action, ActionPanel, Alert, Color, confirmAlert, Icon, List, showToast,
 import { showFailureToast } from "@raycast/utils";
 import { TodoEmptyView, TodoListItem } from "./components/todo-list";
 import { withFaite } from "./lib/auth";
-import { todayIn } from "./lib/format";
-import { useLabels, useLists, useProfile, useTodos } from "./lib/hooks";
+import { useLabels, useLists, useToday, useTodos } from "./lib/hooks";
 import { api, apiHost } from "./lib/api";
 import { ListForm } from "./components/list-form";
 import { TodoForm } from "./components/todo-form";
@@ -17,8 +16,7 @@ import type { List as FaiteList } from "./lib/types";
  * decision the user already made.
  */
 function ListTodos({ list }: { list: FaiteList }) {
-  const { data: profile } = useProfile();
-  const today = profile ? todayIn(profile.timezone) : "";
+  const today = useToday();
 
   const { data: todos, isLoading, mutate } = useTodos({ listId: list.id, status: "open" });
   const { data: lists } = useLists();

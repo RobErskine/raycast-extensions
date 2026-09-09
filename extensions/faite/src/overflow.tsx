@@ -2,8 +2,7 @@ import { Action, ActionPanel, Icon, List, Keyboard } from "@raycast/api";
 import { TodoEmptyView, TodoListItem } from "./components/todo-list";
 import { TodoForm } from "./components/todo-form";
 import { withFaite } from "./lib/auth";
-import { todayIn } from "./lib/format";
-import { useLabels, useLists, useOverflow, useProfile } from "./lib/hooks";
+import { useLabels, useLists, useOverflow, useToday } from "./lib/hooks";
 
 /**
  * Overflow — the Faite Loop's burn-down queue.
@@ -19,8 +18,7 @@ import { useLabels, useLists, useOverflow, useProfile } from "./lib/hooks";
  * owed, not a history of the window.
  */
 function Overflow() {
-  const { data: profile, isLoading: loadingProfile } = useProfile();
-  const today = profile ? todayIn(profile.timezone) : undefined;
+  const today = useToday();
 
   const { data: overflow, isLoading, mutate } = useOverflow();
   const { data: lists } = useLists();
@@ -35,7 +33,7 @@ function Overflow() {
           <Action.Push title="New To-Do" icon={Icon.Plus} target={<TodoForm mutate={mutate} />} />
         </ActionPanel>
       }
-      isLoading={loadingProfile || isLoading}
+      isLoading={isLoading}
       searchBarPlaceholder="Filter overflow"
     >
       {rows.length === 0 && !isLoading ? (
@@ -46,7 +44,7 @@ function Overflow() {
       ) : (
         <List.Section title="Overflow" subtitle={`${rows.length}`}>
           {rows.map((todo) => (
-            <TodoListItem key={todo.id} todo={todo} today={today ?? ""} lists={lists} labels={labels} mutate={mutate}>
+            <TodoListItem key={todo.id} todo={todo} today={today} lists={lists} labels={labels} mutate={mutate}>
               <Action.Push
                 title="New To-Do"
                 icon={Icon.Plus}

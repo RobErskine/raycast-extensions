@@ -1,8 +1,7 @@
 import { Icon, launchCommand, LaunchType, MenuBarExtra, open } from "@raycast/api";
 import { apiHost } from "./lib/api";
 import { withFaite } from "./lib/auth";
-import { todayIn } from "./lib/format";
-import { todoUrl, useOverflow, useProfile, useTodos } from "./lib/hooks";
+import { todoUrl, useOverflow, useToday, useTodos } from "./lib/hooks";
 
 /**
  * Today's count in the menu bar, with the day's to-dos behind it.
@@ -13,13 +12,11 @@ import { todoUrl, useOverflow, useProfile, useTodos } from "./lib/hooks";
  * mechanic exists to make visible.
  */
 function FaiteMenuBar() {
-  const { data: profile, isLoading: loadingProfile } = useProfile();
-  const today = profile ? todayIn(profile.timezone) : undefined;
-
-  const { data: todos, isLoading } = useTodos(today ? { scheduledDate: today, status: "open" } : {});
+  const today = useToday();
+  const { data: todos, isLoading } = useTodos({ scheduledDate: today, status: "open" });
   const { data: overflowAll, isLoading: loadingOverflow } = useOverflow();
 
-  const rows = today ? (todos ?? []) : [];
+  const rows = todos ?? [];
   const overflow = (overflowAll ?? []).filter((todo) => todo.status === "open");
 
   return (
@@ -27,8 +24,8 @@ function FaiteMenuBar() {
       icon={Icon.Circle}
       // The count is today's open work. `undefined` while loading rather than
       // "0", which would read as "nothing to do" for a second on every wake.
-      title={loadingProfile || isLoading ? undefined : String(rows.length)}
-      isLoading={loadingProfile || isLoading || loadingOverflow}
+      title={isLoading ? undefined : String(rows.length)}
+      isLoading={isLoading || loadingOverflow}
       tooltip="Faite"
     >
       <MenuBarExtra.Section title={rows.length === 1 ? "1 to-do today" : `${rows.length} to-dos today`}>

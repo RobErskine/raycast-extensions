@@ -145,6 +145,7 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
+    "test": "node --test --experimental-strip-types tests/*.test.ts",
     "build": "ray build",
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",

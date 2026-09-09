@@ -1,6 +1,7 @@
 import { Action, ActionPanel, Form, Icon, showToast, Toast, useNavigation } from "@raycast/api";
 import { FormValidation, MutatePromise, showFailureToast, useForm } from "@raycast/utils";
 import { api } from "../lib/api";
+import { fromCivilDate, toCivilDate } from "../lib/dates";
 import { useLabels, useLists } from "../lib/hooks";
 import type { Priority, Todo } from "../lib/types";
 
@@ -34,22 +35,6 @@ interface Props {
   mutate?: MutatePromise<Todo[] | undefined>;
   /** Prefills the list when creating from inside one. */
   defaultListId?: string;
-}
-
-/** The API wants a civil date; a Form.DatePicker hands back a local Date.
- * Taking local Y-M-D rather than `toISOString()` keeps a late-evening pick on
- * the day the user actually chose instead of shifting it in UTC. */
-function toCivilDate(date: Date | null): string | null {
-  if (!date) return null;
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
-
-/** Parsed as UTC noon so no timezone can drag the rendered day either side of
- * midnight — the picker only ever shows a day, never a time. */
-function fromCivilDate(value: string | null): Date | null {
-  if (!value) return null;
-  const [year, month, day] = value.split("-").map(Number);
-  return new Date(Date.UTC(year, month - 1, day, 12));
 }
 
 const PRIORITIES: { value: Priority | ""; title: string }[] = [

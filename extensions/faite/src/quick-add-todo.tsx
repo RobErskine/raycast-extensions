@@ -11,7 +11,7 @@ import {
 import { showFailureToast } from "@raycast/utils";
 import { api } from "./lib/api";
 import { withFaite } from "./lib/auth";
-import { todayIn } from "./lib/format";
+import { todayIn } from "./lib/dates";
 import type { List, Profile, Todo } from "./lib/types";
 
 /**

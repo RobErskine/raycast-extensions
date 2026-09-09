@@ -3,7 +3,7 @@ import { MutatePromise, showFailureToast } from "@raycast/utils";
 import { api } from "../lib/api";
 import { DayNoteForm } from "./day-note-form";
 import { TodoForm } from "./todo-form";
-import { addDays } from "../lib/format";
+import { addDays, toCivilDate } from "../lib/dates";
 import { todoUrl } from "../lib/hooks";
 import type { List, Todo } from "../lib/types";
 
@@ -153,12 +153,10 @@ export function TodoActions({ todo, today, lists, mutate, children }: Props) {
           icon={Icon.Calendar}
           type={Action.PickDate.Type.Date}
           onChange={(date) => {
-            if (!date) return;
-            // `PickDate` hands back a local Date; the API wants a civil date,
-            // so take the local Y-M-D rather than `toISOString()`, which
+            // `toCivilDate` handles the local-Y-M-D conversion — `toISOString`
             // would shift a late-evening pick to the next day in UTC.
-            const civil = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-            void reschedule(civil, civil);
+            const civil = toCivilDate(date);
+            if (civil) void reschedule(civil, civil);
           }}
         />
         {todo.scheduledDate && (

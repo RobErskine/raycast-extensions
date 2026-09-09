@@ -1,5 +1,6 @@
 import { useCachedPromise } from "@raycast/utils";
 import { api, apiHost } from "./api";
+import { todayIn } from "./dates";
 import type { DayNote, Label, List, Profile, Tab, Todo } from "./types";
 
 /**
@@ -83,4 +84,32 @@ export function todoUrl(id: string): string {
 
 export function dayUrl(date: string): string {
   return `${apiHost()}/board?day=${encodeURIComponent(date)}`;
+}
+
+/**
+ * Today, as a civil date, ALWAYS well-formed.
+ *
+ * The account's timezone is the right authority — Faite stores scheduled
+ * dates as civil dates, so a traveller's day is the one their profile says it
+ * is — but `/profile` takes a round trip to arrive. Until it does, this falls
+ * back to the MACHINE's civil date rather than to a placeholder.
+ *
+ * That fallback is the whole point. An earlier version returned `""` while
+ * loading, which flowed into `addDays` and threw `RangeError: Invalid time
+ * value` from inside a render, taking down any view holding a to-do with a
+ * date (EI-309). A date that is briefly wrong by a timezone is enormously
+ * better than one that cannot be rendered at all, and for almost every user
+ * the two agree anyway.
+ *
+ * Every view uses this. None should construct a "today" of its own again.
+ */
+export function useToday(): string {
+  const { data: profile } = useProfile();
+  const machineDate = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  return profile ? todayIn(profile.timezone) : machineDate;
 }
