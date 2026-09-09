@@ -1,6 +1,6 @@
 import { api } from "../lib/api";
 import { withFaite } from "../lib/auth";
-import { labelIdList } from "./create-todo";
+import { labelIdList } from "../lib/labels";
 import { listName, todoTitle } from "./confirmation";
 import type { Todo } from "../lib/types";
 

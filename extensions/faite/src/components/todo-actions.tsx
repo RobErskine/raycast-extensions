@@ -47,6 +47,11 @@ export function TodoActions({ todo, today, lists, mutate, children }: Props) {
     }
   };
 
+  /**
+   * `scheduledDate: null` UNSCHEDULES — that is what the Unschedule action
+   * wants, and it is why every caller computing a date must check for null
+   * before calling this rather than passing it through. See `shiftBy`.
+   */
   const reschedule = async (scheduledDate: string | null, label: string) => {
     try {
       await mutate(api.patch<Todo>(`/todos/${todo.id}`, { scheduledDate }), {
@@ -59,6 +64,24 @@ export function TodoActions({ todo, today, lists, mutate, children }: Props) {
     } catch (error) {
       await showFailureToast(error, { title: "Couldn't reschedule that to-do" });
     }
+  };
+
+  /**
+   * Moving relative to today, with the null case handled explicitly.
+   *
+   * `addDays` returns null for a date it cannot parse, and `reschedule(null)`
+   * means UNSCHEDULE — so passing the result straight through would turn
+   * "Tomorrow" into "clear the date" whenever `today` was malformed. Silent,
+   * wrong, and destructive. `useToday` makes that unreachable today; this
+   * makes it unreachable if that ever stops being true.
+   */
+  const shiftBy = async (days: number, label: string) => {
+    const target = addDays(today, days);
+    if (!target) {
+      await showFailureToast(new Error("Couldn't work out that date"), { title: "Reschedule" });
+      return;
+    }
+    await reschedule(target, label);
   };
 
   const moveToList = async (list: List) => {
@@ -145,9 +168,9 @@ export function TodoActions({ todo, today, lists, mutate, children }: Props) {
             macOS: { modifiers: ["cmd", "shift"], key: "m" },
             windows: { modifiers: ["ctrl", "shift"], key: "m" },
           }}
-          onAction={() => reschedule(addDays(today, 1), "tomorrow")}
+          onAction={() => shiftBy(1, "tomorrow")}
         />
-        <Action title="Next Week" icon={Icon.Calendar} onAction={() => reschedule(addDays(today, 7), "next week")} />
+        <Action title="Next Week" icon={Icon.Calendar} onAction={() => shiftBy(7, "next week")} />
         <Action.PickDate
           title="Pick a Date…"
           icon={Icon.Calendar}

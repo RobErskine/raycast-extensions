@@ -3,9 +3,16 @@ import { describe, it } from "node:test";
 import { messageFor, normalizeHost } from "../src/lib/errors.ts";
 
 describe("messageFor", () => {
-  /** Every error body `/api/v1` can return should map to something a person
-   * can act on. A new server-side error code that lands here unmapped falls
-   * through to the generic message, which is survivable but unhelpful. */
+  /**
+   * Every error body `/api/v1` can return should map to something a person
+   * can act on. A new server-side code landing here unmapped falls through to
+   * the generic message — survivable, unhelpful.
+   *
+   * This list was checked against a live worker rather than read off the
+   * source: each code below was provoked with a real request (bad key,
+   * read-only key on a write, unknown id, empty body, deleting Backlog) and
+   * the server returned exactly these strings.
+   */
   it("maps every documented API error", () => {
     const codes = [
       "unauthenticated",

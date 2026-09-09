@@ -1,5 +1,6 @@
 import { api } from "../lib/api";
 import { withFaite } from "../lib/auth";
+import { labelIdList } from "../lib/labels";
 import { listName } from "./confirmation";
 import type { Todo } from "../lib/types";
 
@@ -49,27 +50,6 @@ type Input = {
    */
   labelIds?: string;
 };
-
-/**
- * Splits the comma-separated label list.
- *
- * **This should be `string[]`.** `ray build` fails with "Cannot read
- * properties of undefined (reading 'flags')" for ANY array-typed field on a
- * tool `Input` here — reproduced down to a two-field type on a plain,
- * unwrapped tool, so it is neither this extension's auth wrapper nor its
- * types. Other published extensions do ship array inputs, so this looks like
- * a toolchain regression rather than an unsupported feature. Revisit on the
- * next @raycast/api bump; the model handles a documented comma list fine, so
- * this costs clarity rather than capability.
- */
-export function labelIdList(value: string | undefined): string[] | undefined {
-  if (!value) return undefined;
-  const ids = value
-    .split(",")
-    .map((id) => id.trim())
-    .filter(Boolean);
-  return ids.length > 0 ? ids : undefined;
-}
 
 /** Create a to-do. */
 export default withFaite(async ({ labelIds, ...input }: Input) =>
