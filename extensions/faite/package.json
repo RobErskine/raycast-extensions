@@ -52,6 +52,15 @@
           "type": "checkbox",
           "required": false,
           "default": false
+        },
+        {
+          "name": "captureContext",
+          "title": "Capture Context",
+          "label": "Remember where you captured it",
+          "description": "Save the active browser tab's URL and the app you were in, so a to-do links back to what you were looking at. Page titles are saved; window titles never are.",
+          "type": "checkbox",
+          "required": false,
+          "default": true
         }
       ]
     },

@@ -10,6 +10,7 @@ import {
 } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { api } from "./lib/api";
+import { captureContext } from "./lib/capture-context";
 import { withFaite } from "./lib/auth";
 import { todayIn } from "./lib/dates";
 import type { List, Profile, Todo } from "./lib/types";
@@ -30,6 +31,7 @@ import type { List, Profile, Todo } from "./lib/types";
 interface Preferences {
   shouldCloseMainWindow: boolean;
   dontUseAI: boolean;
+  captureContext: boolean;
 }
 
 interface ParsedTodo {
@@ -93,7 +95,7 @@ async function parseWithAI(text: string, lists: List[], today: string): Promise<
 }
 
 async function QuickAddTodo(props: LaunchProps<{ arguments: { text: string; notes?: string } }>) {
-  const { shouldCloseMainWindow, dontUseAI } = getPreferenceValues<Preferences>();
+  const { shouldCloseMainWindow, dontUseAI, captureContext: shouldCapture } = getPreferenceValues<Preferences>();
 
   // `fallbackText` is what makes this usable as a Raycast AI fallback command:
   // type anything into Raycast, pick Quick Add, and it becomes a to-do.
@@ -131,8 +133,14 @@ async function QuickAddTodo(props: LaunchProps<{ arguments: { text: string; note
       }
     }
 
+    // Resolved in parallel with nothing else outstanding, and never awaited
+    // on the critical path in a way that could fail the create — see
+    // `captureContext`, which returns undefined for every failure it has.
+    const source = shouldCapture ? await captureContext() : undefined;
+
     const created = await api.post<Todo>("/todos", {
       title: parsed.title,
+      ...(source ? { source } : {}),
       ...(props.arguments.notes ? { description: props.arguments.notes } : {}),
       ...(parsed.scheduledDate ? { scheduledDate: parsed.scheduledDate } : {}),
       ...(parsed.deadline ? { deadline: parsed.deadline } : {}),

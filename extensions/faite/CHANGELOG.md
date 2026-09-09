@@ -2,6 +2,7 @@
 
 ## [Initial Version] - {PR_MERGE_DATE}
 
+- **Quick Add To-Do** remembers where you were — the active browser tab is saved on the to-do, so you can click straight back to the page
 - **Quick Add To-Do** — capture a to-do from anywhere, with natural-language dates, priority and list
 - Create and edit to-dos with a full form — notes, list, labels, priority, dates and location
 - **Day Note** — write the Markdown note for any day, and jump to it from any scheduled to-do

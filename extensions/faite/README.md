@@ -6,7 +6,7 @@ Capture, find and triage your [Faite](https://myfaite.app) to-dos without leavin
 
 | Command | What it does |
 | --- | --- |
-| **Quick Add To-Do** | Capture a to-do from anywhere. Understands "buy milk tomorrow" and files it for you. |
+| **Quick Add To-Do** | Capture a to-do from anywhere. Understands "buy milk tomorrow", files it for you, and remembers the page you were on. |
 | **Today** | The day's to-dos — complete, reschedule, move or edit them. |
 | **Overflow** | Triage what slipped past its scheduled day. |
 | **Search To-Dos** | Search everything by title, list or label. |
@@ -50,6 +50,12 @@ Use a key from Faite's **Settings → API Keys** with **Write** enabled.
 > **Why this is manual.** Raycast's programmatic `Action.InstallMCPServer` only offers the legacy **SSE** transport, which opens with a `GET` to the server. Faite's `/mcp` speaks **Streamable HTTP** and answers `GET` with `405` by design — it never pushes server-initiated messages, so a client waiting on one would hang rather than fail fast. Raycast's own MCP settings UI does support Streamable HTTP, so adding it there works; a one-click button would not. This is worth revisiting if Raycast adds an HTTP transport to that action.
 
 The extension's own AI tools and this MCP server overlap on purpose — they serve different clients, and you do not need both.
+
+## Remembering where you were
+
+Quick Add saves the active browser tab's URL and page title on the to-do, so a "buy this" captured on a product page links straight back to it. Faite shows it as a **From browser** chip you can click.
+
+This needs [Raycast's browser extension](https://raycast.com/browser-extension), and is macOS-only for now — without it, Quick Add still works, it just captures the app you were in instead. Page titles are saved; **window titles never are**. Turn it off under the command's **Capture Context** preference.
 
 ## Preferences
 
