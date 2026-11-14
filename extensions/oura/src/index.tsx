@@ -1,4 +1,4 @@
-import { List, openExtensionPreferences, Action, ActionPanel } from "@raycast/api";
+import { List, openExtensionPreferences, Action, ActionPanel, Icon } from "@raycast/api";
 import { oura } from "./utils/ouraData";
 import { convertHeight, convertWeight } from "./utils/measurement";
 import Unauthorized from "./unauthorized";
@@ -16,15 +16,37 @@ interface UserResponse {
   };
 }
 
+interface RingBatteryResponse {
+  isLoading: boolean;
+  error: Error;
+  data: {
+    data: [{ timestamp: string; level: number; in_charger: boolean }];
+  };
+}
+
 export default function Command() {
   const personalInfo = oura("usercollection/personal_info") as UserResponse;
+  const battery = oura("usercollection/ring_battery_level?latest=true") as RingBatteryResponse;
 
+  // Only personal_info gates the Unauthorized screen. The battery endpoint requires the
+  // `ring_configuration` scope, which users authorized before this change won't have granted —
+  // so we degrade gracefully on the battery row instead of blocking the whole command.
   if (personalInfo.error) {
     return <Unauthorized />;
   }
 
+  const batteryReading = battery?.data?.data?.[0];
+  let batterySubtitle: string;
+  if (battery.isLoading) {
+    batterySubtitle = "Loading…";
+  } else if (battery.error || !batteryReading) {
+    batterySubtitle = "Unavailable — reconnect your Oura account to enable";
+  } else {
+    batterySubtitle = `${batteryReading.level}%${batteryReading.in_charger ? " · Charging" : ""}`;
+  }
+
   return (
-    <List isLoading={personalInfo.isLoading}>
+    <List isLoading={personalInfo.isLoading || battery.isLoading}>
       <List.Item title={`Age`} subtitle={`${personalInfo?.data?.age}`} />
       <List.Item
         title={`Weight`}
@@ -45,6 +67,11 @@ export default function Command() {
         }
       />
       <List.Item title={`Email`} subtitle={`${personalInfo?.data?.email}`} />
+      <List.Item
+        title={`Battery`}
+        subtitle={batterySubtitle}
+        icon={batteryReading?.in_charger ? Icon.BatteryCharging : Icon.Battery}
+      />
     </List>
   );
 }

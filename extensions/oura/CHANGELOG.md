@@ -1,5 +1,9 @@
 # Oura Changelog
 
+## [2.1.0] - 2026-06-06
+- Added current ring battery level (and charging status) to the "Get Oura Personal Info" command.
+- Requesting the `ring_configuration` OAuth scope to read battery data. Users who connected before this release should disconnect and reconnect their Oura account to grant it.
+
 ## [2.0.0] - 2026-02-03
 - Migrated authentication to Oura OAuth2 (client ID/secret + PKCE) as Personal Access Tokens are now deprecated. 
 - Update API requests to use OAuth2 tokens

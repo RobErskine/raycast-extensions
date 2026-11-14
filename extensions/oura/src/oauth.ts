@@ -3,7 +3,7 @@ import { Preference } from "./types";
 
 const AUTHORIZE_URL = "https://cloud.ouraring.com/oauth/authorize";
 const TOKEN_URL = "https://api.ouraring.com/oauth/token";
-const SCOPES = "email personal daily heartrate tag workout session spo2";
+const SCOPES = "email personal daily heartrate tag workout session spo2 ring_configuration";
 
 // Lock configuration
 const LOCK_KEY = "oura_auth_lock";

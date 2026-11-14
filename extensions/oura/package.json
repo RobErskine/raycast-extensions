@@ -15,7 +15,7 @@
     {
       "name": "index",
       "title": "Get Oura Personal Info",
-      "description": "Get your latest personal info from Oura like your age, weight, and height.",
+      "description": "Get your latest personal info from Oura like your age, weight, height, and ring battery level.",
       "mode": "view"
     },
     {
