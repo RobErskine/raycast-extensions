@@ -1,0 +1,244 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "orbit-workspace",
+  "title": "Orbit Workspace",
+  "description": "Search and create Orbit tasks and docs, read chat, save task views, and see your tasks in the menu bar.",
+  "icon": "icon.png",
+  "author": "Rob",
+  "categories": [
+    "Productivity",
+    "Communication"
+  ],
+  "license": "MIT",
+  "platforms": [
+    "macOS"
+  ],
+  "preferences": [
+    {
+      "name": "instanceUrl",
+      "type": "textfield",
+      "required": true,
+      "title": "Orbit URL",
+      "description": "The address of your Orbit, in Orbit Cloud or self-hosted.",
+      "placeholder": "https://orbit.example.com"
+    },
+    {
+      "name": "apiToken",
+      "type": "password",
+      "required": true,
+      "title": "API Token",
+      "description": "Create it in Orbit under Settings → API tokens (it starts with orb_). For all features, give it Tasks: Write, Docs: Write and Chat: Read.",
+      "placeholder": "orb_…"
+    }
+  ],
+  "commands": [
+    {
+      "name": "search-tasks",
+      "title": "Search Tasks",
+      "description": "Search, filter and update your Orbit tasks.",
+      "mode": "view",
+      "keywords": [
+        "issues",
+        "todo"
+      ]
+    },
+    {
+      "name": "create-task",
+      "title": "Create Task",
+      "description": "Create a task in an Orbit project.",
+      "mode": "view",
+      "keywords": [
+        "issue",
+        "new"
+      ]
+    },
+    {
+      "name": "search-docs",
+      "title": "Search Docs",
+      "description": "Find and read Orbit docs.",
+      "mode": "view",
+      "keywords": [
+        "notes",
+        "pages"
+      ]
+    },
+    {
+      "name": "create-doc",
+      "title": "Create Doc",
+      "description": "Create an Orbit doc from Markdown.",
+      "mode": "view",
+      "keywords": [
+        "note",
+        "page",
+        "new"
+      ]
+    },
+    {
+      "name": "chat",
+      "title": "Browse Chat",
+      "description": "Read Orbit channels, direct messages and threads.",
+      "mode": "view",
+      "keywords": [
+        "messages",
+        "channels",
+        "dm"
+      ]
+    },
+    {
+      "name": "search-messages",
+      "title": "Search Messages",
+      "description": "Search Orbit chat messages.",
+      "mode": "view",
+      "keywords": [
+        "chat"
+      ]
+    },
+    {
+      "name": "task-views",
+      "title": "Task Views",
+      "description": "Saved task filters, for example the open tasks of one project. Each view can become a quicklink.",
+      "mode": "view",
+      "keywords": [
+        "filters",
+        "saved",
+        "projects"
+      ]
+    },
+    {
+      "name": "orbit-tasks-menu-bar",
+      "title": "Orbit Tasks",
+      "description": "Show your open Orbit tasks in the menu bar.",
+      "mode": "menu-bar",
+      "interval": "10m",
+      "preferences": [
+        {
+          "name": "show",
+          "type": "dropdown",
+          "required": false,
+          "title": "Show",
+          "description": "Which open tasks the menu bar counts and lists.",
+          "default": "mine",
+          "data": [
+            {
+              "title": "Assigned to Me",
+              "value": "mine"
+            },
+            {
+              "title": "All Open Tasks",
+              "value": "all"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "name": "get-me",
+      "title": "Get Me",
+      "description": "Who the Orbit API token acts as (the current user), the workspace, the token's permissions and the Orbit URL."
+    },
+    {
+      "name": "list-projects",
+      "title": "List Projects",
+      "description": "List the Orbit projects the token can use, with each project's key (for example DBM), its statuses in workflow order with their category, and its labels."
+    },
+    {
+      "name": "list-members",
+      "title": "List Members",
+      "description": "List the members of the Orbit workspace, to choose assignees. Most tools also accept a member's name or \"me\" directly."
+    },
+    {
+      "name": "list-task-views",
+      "title": "List Task Views",
+      "description": "List the task views the user saved in this extension. A view is a saved task filter (project, status, assignee, priority, label, text, sort). Pass a view's name to list-tasks as view."
+    },
+    {
+      "name": "list-tasks",
+      "title": "List Tasks",
+      "description": "List Orbit tasks by project, status, assignee, priority, label, text or a saved task view. Returns open tasks unless state is done or all. For my tasks, use assignee \"me\"; for unassigned tasks, \"none\". Inputs take names (project DBM, status In Progress), not IDs. Supports nextCursor for more results."
+    },
+    {
+      "name": "get-task",
+      "title": "Get Task",
+      "description": "Read one Orbit task by its identifier (for example DBM-12): description, status, priority, assignees, labels, due date and comments."
+    },
+    {
+      "name": "create-task",
+      "title": "Create Task",
+      "description": "Create an Orbit task in a project (key, name or ID) with a title, and optionally a Markdown description, status, priority, assignees (\"me\" or names), labels and due date (ISO 8601)."
+    },
+    {
+      "name": "update-task",
+      "title": "Update Task",
+      "description": "Change an Orbit task by identifier (for example DBM-12): title, description, status (use \"done\" to close it), priority, assignees, labels or due date. Assignees and labels replace the existing ones."
+    },
+    {
+      "name": "add-comment",
+      "title": "Add Comment",
+      "description": "Add a Markdown comment to an Orbit task by identifier (for example DBM-12)."
+    },
+    {
+      "name": "delete-task",
+      "title": "Delete Task",
+      "description": "Move an Orbit task and its sub-issues to the trash (restorable for 30 days). Only use when the user explicitly asks to delete or trash a task; to close a task, use update-task with status done."
+    },
+    {
+      "name": "search-docs",
+      "title": "Search Docs",
+      "description": "Find Orbit docs by words in their title or their parent docs' titles. Orbit cannot search doc content. Returns doc IDs for get-doc."
+    },
+    {
+      "name": "get-doc",
+      "title": "Get Doc",
+      "description": "Read an Orbit doc by ID or exact title. Returns its content as Markdown."
+    },
+    {
+      "name": "create-doc",
+      "title": "Create Doc",
+      "description": "Create an Orbit doc from a title and Markdown, in the default teamspace, in the user's private space, or inside a parent doc."
+    },
+    {
+      "name": "append-to-doc",
+      "title": "Append to Doc",
+      "description": "Add Markdown to the end of an Orbit doc (by ID or exact title) without changing the rest of it."
+    },
+    {
+      "name": "list-conversations",
+      "title": "List Conversations",
+      "description": "List the Orbit chat channels and direct messages the user can read, most recently active first."
+    },
+    {
+      "name": "get-messages",
+      "title": "Get Messages",
+      "description": "Read recent messages of an Orbit chat channel or direct message (by channel name, person's name or ID), or one thread. Chat is read-only: messages cannot be sent."
+    },
+    {
+      "name": "search-messages",
+      "title": "Search Messages",
+      "description": "Search Orbit chat messages by words, in all conversations or one. Newest first, 20 per page, with nextCursor for older matches."
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^2.11.1",
+    "@raycast/utils": "^2.3.3"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.1.1",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "eslint": "^9.22.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.2.4"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "test": "vitest run",
+    "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the \\`prepublishOnly\\` script and rerun \\`npm publish\\` again.\\nIf you wanted to publish it to the Raycast Store instead, use \\`npm run publish\\` instead.\\n\\n\" && exit 1",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}
